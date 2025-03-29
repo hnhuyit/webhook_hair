@@ -10,7 +10,7 @@ const openai = new OpenAI({
 
 async function askAI(message) {
   const res = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo", // hoặc gpt-4 nếu bạn dùng
+    model: "gpt-4o", // hoặc gpt-4 nếu bạn dùng
     messages: [
       { role: "system", content: prompt },
       { role: "user", content: message }
