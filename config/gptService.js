@@ -1,4 +1,4 @@
-const values = require("../config/customValues");
+const values = require("./customValues");
 
 module.exports = `
 🎯 MỤC TIÊU
