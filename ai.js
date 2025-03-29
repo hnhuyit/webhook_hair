@@ -16,7 +16,7 @@ async function askAI(message) {
       { role: "user", content: message }
     ]
   });
-  return res.data.choices[0].message.content.trim();
+  return res.choices[0].message.content.trim();
 }
 
 module.exports = { askAI };
