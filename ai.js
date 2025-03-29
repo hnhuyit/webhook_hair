@@ -1,12 +1,12 @@
-const { Configuration, OpenAIApi } = require("openai");
 require("dotenv").config();
 const prompt = process.env.SYSTEM_PROMPT || "Bạn là trợ lý OA.";
+// ai.js (hỗ trợ OpenAI SDK v4+)
+const OpenAI = require("openai");
+require("dotenv").config();
 
-const config = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
-
-const openai = new OpenAIApi(config);
 
 async function askAI(message) {
   const res = await openai.createChatCompletion({
