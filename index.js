@@ -4,6 +4,7 @@ const crypto = require("crypto");
 
 const { replyZalo } = require("./zalo.js");
 const { askAI } = require("./ai.js");
+const { handleAIReply } = require("./handlers/aiResponder");
 
 const app = express();
 app.use(express.static("public"));
@@ -19,7 +20,7 @@ app.use(bodyParser.json({
   }
 }));
 
-app.post("/webhook", (req, res) => {
+app.post("/webhook", async (req, res) => {
   try {
     const rawBody = req.rawBody;
     const timestamp = req.headers["x-zalopayload-timestamp"];
@@ -74,15 +75,12 @@ app.post("/webhook", (req, res) => {
       const userMessage = message.text;
 
       const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
-
-      const aiReply = await askAI(userMessage); // 🤖 Gọi AI trả lời
-      await replyZalo(userId, aiReply); // Gửi lại user
+      // Gọi hàm async để xử lý AI
+      await handleAIReply(userId, userMessage);
     }
 
     // ✅ Thành công
-    const payload = req.body;
-    console.log("✅ Webhook nhận được:", payload);
-
+    console.log("✅ Webhook nhận được:", req.body);
     res.sendStatus(200);
   } catch (err) {
     console.error("🔥 Lỗi webhook:", err);
