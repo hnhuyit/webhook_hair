@@ -18,7 +18,7 @@ async function handleAIReply(userId, userMessage) {
       ? "⚠️ Hiện tại hệ thống AI đang quá tải. Nhân viên thật sẽ hỗ trợ bạn ngay sau ít phút."
       : "⚠️ Xin lỗi, hiện tại hệ thống đang gặp lỗi. Vui lòng thử lại sau.";
     
-      try {
+    try {
       await replyZalo(userId, fallbackMsg);
     } catch (fallbackErr) {
       console.error("❌ Lỗi khi gửi fallback cho user:", fallbackErr.message);
