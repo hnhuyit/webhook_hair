@@ -1,4 +1,4 @@
-const values = require("../config/gptService");
+const values = require("../config/customValues");
 
 module.exports = `
 🎯 MỤC TIÊU
