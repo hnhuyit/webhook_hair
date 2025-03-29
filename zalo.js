@@ -11,7 +11,7 @@ async function replyZalo(userId, message) {
   }
 
   const res = await axios.post(
-    "https://openapi.zalo.me/v3.0/oa/message",
+    "https://openapi.zalo.me/v3.0/oa/message/cs",
     {
       recipient: { user_id: userId },
       message: { text: message }

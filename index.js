@@ -30,7 +30,7 @@ app.post("/webhook", async (req, res) => {
      console.log("---- Nhận request từ Zalo ----");
     //  console.log("Headers:", req.headers);
     //  console.log("Raw Body:", rawBody);
-     console.log("Parsed Body:", req.body);
+    //  console.log("Parsed Body:", req.body);
 
     // if (!signature || !rawBody) {
     //   // console.error("❌ Thiếu header hoặc raw body");
