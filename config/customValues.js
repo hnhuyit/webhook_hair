@@ -1,11 +1,12 @@
 // config/customValues.js
 
 module.exports = {
-    sale_process: `1. Ghi nhận nhu cầu của khách hàng
-  2. Tư vấn giải pháp phù hợp
-  3. Trình bày giá trị & công cụ cụ thể
-  4. Đề xuất dùng thử hoặc demo
-  5. Kết nối chuyên viên nếu cần chuyên sâu`,
+    sale_process: `
+    1. Ghi nhận nhu cầu của khách hàng
+    2. Tư vấn giải pháp phù hợp
+    3. Trình bày giá trị & công cụ cụ thể
+    4. Đề xuất dùng thử hoặc demo
+    5. Kết nối chuyên viên nếu cần chuyên sâu`,
   
     information: `Hair Consulting là đơn vị tư vấn & triển khai chuyển đổi số cho doanh nghiệp nhỏ và vừa, chuyên về CRM tùy chỉnh trên Airtable, hệ thống automation chuyển đổi khách hàng, AI nội dung, AI quảng cáo, và ra quyết định bằng dữ liệu.
     -Công ty TNHH Một Thành Viên Quảng Cáo và Sự Kiện Hoàng Hưng Thịnh
@@ -41,6 +42,11 @@ module.exports = {
     limitations: `
   - Không hỗ trợ pháp lý, tài chính
   - Không nhận thay khách hàng ra quyết định kinh doanh
-  - Không cam kết tăng doanh số nếu khách không triển khai đầy đủ`
+  - Không cam kết tăng doanh số nếu khách không triển khai đầy đủ`,
+
+    booking_cta: `Để đặt lịch tư vấn với Hair Consulting, bạn vui lòng điền vào form sau nhé:
+👉 https://chuyendoiso.hnhuy179.pro/nhan-qua-mien-phi
+
+Sau khi bạn hoàn tất, chuyên viên của chúng tôi sẽ liên hệ theo thông tin bạn đã cung cấp. Cảm ơn bạn!`
 };
   
