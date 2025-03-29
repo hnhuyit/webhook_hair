@@ -1,5 +1,7 @@
 require("dotenv").config();
-const prompt = process.env.SYSTEM_PROMPT || "Bạn là trợ lý OA.";
+const fs = require("fs");
+
+const prompt = fs.readFileSync("./config/systemPrompt.txt", "utf8"); //process.env.SYSTEM_PROMPT || "Bạn là trợ lý OA.";
 // ai.js (hỗ trợ OpenAI SDK v4+)
 const OpenAI = require("openai");
 require("dotenv").config();
