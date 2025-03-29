@@ -19,7 +19,7 @@ async function replyZalo(userId, message) {
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          "access_token": token,
           "Content-Type": "application/json"
         }
       }
