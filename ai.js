@@ -9,10 +9,10 @@ const openai = new OpenAI({
 });
 
 async function askAI(message) {
-  const res = await openai.createChatCompletion({
+  const res = await openai.chat.completions.create({
     model: "gpt-3.5-turbo", // hoặc gpt-4 nếu bạn dùng
     messages: [
-      { role: "system", content: "Bạn là trợ lý thông minh của OA Zalo." },
+      { role: "system", content: prompt },
       { role: "user", content: message }
     ]
   });
