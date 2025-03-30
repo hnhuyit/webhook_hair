@@ -15,8 +15,8 @@ app.use(express.static("public"));
 const APP_ID = process.env.APP_ID;
 const APP_SECRET = process.env.APP_SECRET;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "1234567890";
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "YOUR_REAL_TOKEN";
-const PAGE_ID = process.env.PAGE_ID || "";
+const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "";
+const PAGE_ID = process.env.PAGE_ID || "543096242213723";
 
 
 // Middleware để lấy raw body
@@ -119,7 +119,7 @@ async function callSendAPI(sender_psid, response) {
 
   try {
     const res = await axios.post(
-      `https://graph.facebook.com/v22.0/${PAGE_ID}/messages?access_token=${PAGE_ACCESS_TOKEN}`,
+      `https://graph.facebook.com/v22.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
       request_body
     );
     console.log("✅ Tin nhắn đã gửi thành công!", res.data);
