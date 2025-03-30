@@ -21,7 +21,13 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "1234567890";
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "";
 const PAGE_ID = process.env.PAGE_ID || "543096242213723";
 
+const prompt = require("./config/gptService");
+const prompt_tuktuk = require("./config/gptServiceTuktuk");
+const prompt_anna = require("./config/gptServiceAnna");
 
+const token = process.env.OA_ACCESS_TOKEN;
+const token_tuktuk = process.env.OA_TUKTUK;
+const token_anna = process.env.OA_ANNA;
 
 // Add support for GET requests to our webhook
 app.get("/messaging-webhook", (req, res) => {
@@ -182,7 +188,7 @@ app.post("/webhook", async (req, res) => {
 
       const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
       // Gọi hàm async để xử lý AI
-      await handleAIReply(userId, userMessage);
+      await handleAIReply(userId, userMessage, prompt, token);
     }
 
     // ✅ Thành công
@@ -252,7 +258,7 @@ app.post("/webhook-tuktuk", async (req, res) => {
 
       const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
       // Gọi hàm async để xử lý AI
-      await handleAIReply(userId, userMessage);
+      await handleAIReply(userId, userMessage, "Bạn là trợ lý OA.", token_tuktuk);
     }
 
     // ✅ Thành công
@@ -322,7 +328,7 @@ app.post("/webhook-anna", async (req, res) => {
 
       const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
       // Gọi hàm async để xử lý AI
-      // await handleAIReply(userId, userMessage);
+      await handleAIReply(userId, userMessage, "Bạn là trợ lý OA.", token_anna);
     }
 
     // ✅ Thành công

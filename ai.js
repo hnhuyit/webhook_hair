@@ -1,5 +1,5 @@
 require("dotenv").config();
-const prompt = require("./config/gptService");
+// const prompt = require("./config/gptService");
 
 // const prompt = fs.readFileSync("./config/systemPrompt.txt", "utf8"); //process.env.SYSTEM_PROMPT || "Bạn là trợ lý OA.";
 // ai.js (hỗ trợ OpenAI SDK v4+)
@@ -10,7 +10,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-async function askAI(message) {
+async function askAI(message, prompt) {
   const res = await openai.chat.completions.create({
     model: "gpt-4o-mini", // hoặc gpt-4 nếu bạn dùng
     messages: [

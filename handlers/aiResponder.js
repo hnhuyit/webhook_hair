@@ -2,11 +2,11 @@
 const { askAI } = require("../ai");
 const { replyZalo } = require("../zalo");
 
-async function handleAIReply(userId, userMessage) {
+async function handleAIReply(userId, userMessage, prompt, token) {
   try {
-    const aiReply = await askAI(userMessage);     // 🤖 Gọi AI trả lời
+    const aiReply = await askAI(userMessage, prompt);     // 🤖 Gọi AI trả lời
     try {
-      await replyZalo(userId, aiReply);       // 📩 Gửi cho người dùng
+      await replyZalo(userId, aiReply, token);       // 📩 Gửi cho người dùng
       console.log("✅ AI phản hồi:", aiReply);
     } catch (sendErr) {
       console.error("❌ Lỗi khi gửi phản hồi cho user:", sendErr.message);

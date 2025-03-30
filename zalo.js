@@ -1,9 +1,9 @@
 // zalo.js
 const axios = require("axios");
-require("dotenv").config(); // nếu chưa gọi trong index.js
-const token = process.env.OA_ACCESS_TOKEN;
+// require("dotenv").config(); // nếu chưa gọi trong index.js
+// const token = process.env.OA_ACCESS_TOKEN;
 
-async function replyZalo(userId, message) {
+async function replyZalo(userId, message, token) {
   try {
     const token = process.env.OA_ACCESS_TOKEN;
 
