@@ -92,12 +92,13 @@ async function callSendAPI(sender_psid, response) {
     recipient: {
       id: sender_psid
     },
+    messaging_type: "RESPONSE",
     message: response
   };
 
   try {
     const res = await axios.post(
-      `https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
+      `https://graph.facebook.com/v22.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
       request_body
     );
     console.log("✅ Tin nhắn đã gửi thành công!", res.data);
