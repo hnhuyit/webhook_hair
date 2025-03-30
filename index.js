@@ -247,16 +247,16 @@ app.post("/webhook-tuktuk", async (req, res) => {
     // }
 
 
-    const { event_name, sender, message } = req.body;
+    // const { event_name, sender, message } = req.body;
 
-    if (event_name === "user_send_text") {
-      const userId = sender.id;
-      const userMessage = message.text;
+    // if (event_name === "user_send_text") {
+    //   const userId = sender.id;
+    //   const userMessage = message.text;
 
-      const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
-      // Gọi hàm async để xử lý AI
-      // await handleAIReply(userId, userMessage);
-    }
+    //   const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
+    //   // Gọi hàm async để xử lý AI
+    //   // await handleAIReply(userId, userMessage);
+    // }
 
     // ✅ Thành công
     console.log("✅ Webhook nhận được:", req.body);
