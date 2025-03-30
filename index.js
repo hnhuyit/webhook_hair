@@ -2,8 +2,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 
-const { replyZalo } = require("./zalo.js");
-const { askAI } = require("./ai.js");
+// const { replyZalo } = require("./zalo.js");
+// const { askAI } = require("./ai.js");
 const { handleAIReply } = require("./handlers/aiResponder");
 
 const app = express();
@@ -12,6 +12,7 @@ app.use(express.static("public"));
 
 const APP_ID = process.env.APP_ID;
 const APP_SECRET = process.env.APP_SECRET;
+const VERIFY_TOKEN = "1234567890"; // bạn tự định nghĩa
 
 // Middleware để lấy raw body
 app.use(bodyParser.json({
@@ -20,6 +21,54 @@ app.use(bodyParser.json({
   }
 }));
 
+// Add support for GET requests to our webhook
+app.get("/messaging-webhook", (req, res) => {
+  
+  // Parse the query params
+    let mode = req.query["hub.mode"];
+    let token = req.query["hub.verify_token"];
+    let challenge = req.query["hub.challenge"];
+  
+    // Check if a token and mode is in the query string of the request
+    if (mode && token) {
+      // Check the mode and token sent is correct
+      if (mode === "subscribe" && token === VERIFY_TOKEN) {
+        // Respond with the challenge token from the request
+        console.log("WEBHOOK_VERIFIED");
+        res.status(200).send(challenge);
+      } else {
+        // Respond with '403 Forbidden' if verify tokens do not match
+        res.sendStatus(403);
+      }
+    }
+});
+
+// HANDLE POST EVENTS
+app.post('/webhook-meta', (req, res) => {
+  const body = req.body;
+
+  if (body.object === 'page') {
+      body.entry.forEach(entry => {
+          const webhook_event = entry.messaging[0];
+          console.log("New Event:", webhook_event);
+
+          const sender_psid = webhook_event.sender.id;
+          if (webhook_event.message) {
+              handleMessage(sender_psid, webhook_event.message);
+          }
+      });
+      res.status(200).send('EVENT_RECEIVED');
+  } else {
+      res.sendStatus(404);
+  }
+});
+
+function handleMessage(sender_psid, message) {
+  console.log("Message from", sender_psid, ":", message.text);
+  // Ở đây bạn có thể gọi API gửi tin nhắn phản hồi
+}
+
+//zalo
 app.post("/webhook", async (req, res) => {
   try {
     const rawBody = req.rawBody;
