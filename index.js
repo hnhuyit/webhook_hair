@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
+const axios = require('axios');
 
 // const { replyZalo } = require("./zalo.js");
 // const { askAI } = require("./ai.js");
@@ -14,7 +15,6 @@ const APP_ID = process.env.APP_ID;
 const APP_SECRET = process.env.APP_SECRET;
 const VERIFY_TOKEN = "1234567890"; // bạn tự định nghĩa
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN; // <- thay bằng token thật
-
 
 // Middleware để lấy raw body
 app.use(bodyParser.json({
@@ -94,18 +94,15 @@ function callSendAPI(sender_psid, response) {
     message: response
   };
 
-  request({
-    uri: "https://graph.facebook.com/v19.0/me/messages",
-    qs: { access_token: PAGE_ACCESS_TOKEN },
-    method: "POST",
-    json: request_body
-  }, (err, res, body) => {
-    if (!err) {
-      console.log("✅ Tin nhắn đã gửi thành công!");
-    } else {
-      console.error("❌ Lỗi khi gửi tin nhắn: ", err);
-    }
-  });
+  try {
+    const res = axios.post(
+      `https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
+      request_body
+    );
+    console.log("✅ Tin nhắn đã gửi thành công!", res.data);
+  } catch (err) {
+    console.error("❌ Lỗi khi gửi tin nhắn:", err.response ? err.response.data : err.message);
+  }
 }
 
 //zalo
