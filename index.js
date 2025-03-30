@@ -55,7 +55,7 @@ app.post('/messaging-webhook', (req, res) => {
   if (body.object === 'page') {
       body.entry.forEach(entry => {
           const webhook_event = entry.messaging[0];
-          console.log("New Event:", webhook_event);
+          console.log("New Event:", webhook_event, PAGE_ACCESS_TOKEN);
 
           const sender_psid = webhook_event.sender.id;
           if (webhook_event.message) {
