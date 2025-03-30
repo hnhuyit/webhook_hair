@@ -13,6 +13,8 @@ app.use(express.static("public"));
 const APP_ID = process.env.APP_ID;
 const APP_SECRET = process.env.APP_SECRET;
 const VERIFY_TOKEN = "1234567890"; // bạn tự định nghĩa
+const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN; // <- thay bằng token thật
+
 
 // Middleware để lấy raw body
 app.use(bodyParser.json({
@@ -66,6 +68,44 @@ app.post('/webhook-meta', (req, res) => {
 function handleMessage(sender_psid, message) {
   console.log("Message from", sender_psid, ":", message.text);
   // Ở đây bạn có thể gọi API gửi tin nhắn phản hồi
+  let response;
+
+  if (received_message.text) {
+    // Xử lý text bình thường
+    response = {
+      "text": `Bạn vừa nói: "${received_message.text}". LUXX cảm ơn bạn đã nhắn tin! 🌸`
+    };
+  } else {
+    // Trường hợp không phải tin nhắn text (ảnh, audio,...)
+    response = {
+      "text": "LUXX hiện tại chỉ tiếp nhận tin nhắn dạng văn bản. Hẹn gặp bạn sau nhé! 💅"
+    };
+  }
+
+  // Gửi phản hồi
+  callSendAPI(sender_psid, response);
+}
+
+function callSendAPI(sender_psid, response) {
+  const request_body = {
+    recipient: {
+      id: sender_psid
+    },
+    message: response
+  };
+
+  request({
+    uri: "https://graph.facebook.com/v19.0/me/messages",
+    qs: { access_token: PAGE_ACCESS_TOKEN },
+    method: "POST",
+    json: request_body
+  }, (err, res, body) => {
+    if (!err) {
+      console.log("✅ Tin nhắn đã gửi thành công!");
+    } else {
+      console.error("❌ Lỗi khi gửi tin nhắn: ", err);
+    }
+  });
 }
 
 //zalo
