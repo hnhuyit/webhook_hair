@@ -46,7 +46,7 @@ app.get("/messaging-webhook", (req, res) => {
 });
 
 // HANDLE POST EVENTS
-app.post('/webhook-meta', (req, res) => {
+app.post('/messaging-webhook', (req, res) => {
   const body = req.body;
 
   if (body.object === 'page') {
