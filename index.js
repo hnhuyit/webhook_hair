@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const axios = require('axios');
+require('dotenv').config();
 
 // const { replyZalo } = require("./zalo.js");
 // const { askAI } = require("./ai.js");
