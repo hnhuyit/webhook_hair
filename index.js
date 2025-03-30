@@ -65,8 +65,8 @@ app.post('/messaging-webhook', (req, res) => {
   }
 });
 
-function handleMessage(sender_psid, message) {
-  console.log("Message from", sender_psid, ":", message.text);
+function handleMessage(sender_psid, received_message) {
+  console.log("Message from", sender_psid, ":", received_message.text);
   // Ở đây bạn có thể gọi API gửi tin nhắn phản hồi
   let response;
 
