@@ -199,7 +199,7 @@ app.post("/webhook", async (req, res) => {
 
 
 //zalo: Tuktuk
-app.post("/zalo-webhook", async (req, res) => {
+app.post("/webhook-tuktuk", async (req, res) => {
   try {
     const rawBody = req.rawBody;
     const timestamp = req.headers["x-zalopayload-timestamp"];
