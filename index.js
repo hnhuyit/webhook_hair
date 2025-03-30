@@ -4,13 +4,16 @@ const crypto = require("crypto");
 const axios = require('axios');
 require('dotenv').config();
 
-// const { replyZalo } = require("./zalo.js");
-// const { askAI } = require("./ai.js");
 const { handleAIReply } = require("./handlers/aiResponder");
 
 const app = express();
 app.use(express.static("public"));
-// app.use(express.json());
+// Middleware để lấy raw body
+app.use(bodyParser.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString("utf8"); // raw body để verify chữ ký
+  }
+}));
 
 const APP_ID = process.env.APP_ID;
 const APP_SECRET = process.env.APP_SECRET;
@@ -19,12 +22,6 @@ const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "";
 const PAGE_ID = process.env.PAGE_ID || "543096242213723";
 
 
-// Middleware để lấy raw body
-app.use(bodyParser.json({
-  verify: (req, res, buf) => {
-    req.rawBody = buf.toString("utf8"); // raw body để verify chữ ký
-  }
-}));
 
 // Add support for GET requests to our webhook
 app.get("/messaging-webhook", (req, res) => {
@@ -247,16 +244,16 @@ app.post("/webhook-tuktuk", async (req, res) => {
     // }
 
 
-    // const { event_name, sender, message } = req.body;
+    const { event_name, sender, message } = req.body;
 
-    // if (event_name === "user_send_text") {
-    //   const userId = sender.id;
-    //   const userMessage = message.text;
+    if (event_name === "user_send_text") {
+      const userId = sender.id;
+      const userMessage = message.text;
 
-    //   const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
-    //   // Gọi hàm async để xử lý AI
-    //   // await handleAIReply(userId, userMessage);
-    // }
+      const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
+      // Gọi hàm async để xử lý AI
+      await handleAIReply(userId, userMessage);
+    }
 
     // ✅ Thành công
     console.log("✅ Webhook nhận được:", req.body);
