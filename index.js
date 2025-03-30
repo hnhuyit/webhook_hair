@@ -14,8 +14,9 @@ app.use(express.static("public"));
 
 const APP_ID = process.env.APP_ID;
 const APP_SECRET = process.env.APP_SECRET;
-const VERIFY_TOKEN = "1234567890"; // bạn tự định nghĩa
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN; // <- thay bằng token thật
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "1234567890";
+const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "YOUR_REAL_TOKEN";
+const PAGE_ID = process.env.PAGE_ID || "";
 
 
 // Middleware để lấy raw body
@@ -42,7 +43,7 @@ app.get("/messaging-webhook", (req, res) => {
         res.status(200).send(challenge);
       } else {
         // Respond with '403 Forbidden' if verify tokens do not match
-        res.sendStatus(403);
+        res.status(403).send("Forbidden – Token mismatch");
       }
     }
 });
@@ -58,7 +59,9 @@ app.post('/messaging-webhook', (req, res) => {
 
           const sender_psid = webhook_event.sender.id;
           if (webhook_event.message) {
-              handleMessage(sender_psid, webhook_event.message);
+            handleMessage(sender_psid, webhook_event.message);
+          } else if (webhook_event.postback) {
+            handlePostback(sender_psid, webhook_event.postback);
           }
       });
       res.status(200).send('EVENT_RECEIVED');
@@ -66,6 +69,23 @@ app.post('/messaging-webhook', (req, res) => {
       res.sendStatus(404);
   }
 });
+
+function handlePostback(sender_psid, postback) {
+  const payload = postback.payload;
+  console.log("🧠 Postback từ người dùng:", payload);
+
+  let response;
+
+  if (payload === 'GET_STARTED') {
+    response = { text: "Chào mừng bạn đến với LUXX! 💅 Hãy nhắn 'menu' để xem dịch vụ." };
+  } else if (payload === 'VIEW_SERVICES') {
+    response = { text: "Dưới đây là các dịch vụ của LUXX Spa...\n🦶 Pedicure, ✋ Manicure, 💅 Nail Art, v.v..." };
+  } else {
+    response = { text: `Bạn vừa bấm nút có payload: "${payload}"` };
+  }
+
+  callSendAPI(sender_psid, response);
+}
 
 function handleMessage(sender_psid, received_message) {
   console.log("Message from", sender_psid, ":", received_message.text);
@@ -99,12 +119,12 @@ async function callSendAPI(sender_psid, response) {
 
   try {
     const res = await axios.post(
-      `https://graph.facebook.com/v22.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
+      `https://graph.facebook.com/v22.0/${PAGE_ID}/messages?access_token=${PAGE_ACCESS_TOKEN}`,
       request_body
     );
     console.log("✅ Tin nhắn đã gửi thành công!", res.data);
   } catch (err) {
-    console.error("❌ Lỗi khi gửi tin nhắn:", err.response ? err.response.data : err.message);
+    console.error(`❌ Gửi tin nhắn cho ${sender_psid} thất bại:`, err.response ? err.response.data : err.message);
   }
 }
 
