@@ -6,7 +6,13 @@ const fs = require('fs');
 // ai.js (hỗ trợ OpenAI SDK v4+)
 const OpenAI = require("openai");
 require("dotenv").config();
-const userThreads = JSON.parse(fs.readFileSync('userThreads.json', 'utf-8'));
+
+// const userThreads = JSON.parse(fs.readFileSync('userThreads.json', 'utf-8'));
+let userThreads = {};
+const raw = fs.readFileSync('userThreads.json', 'utf-8');
+if (raw.trim()) {
+  userThreads = JSON.parse(raw);
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
