@@ -64,7 +64,7 @@ async function askAssistant(message, prompt, userId) {
   ];
 
   const res = await openai.chat.completions.create({
-    model: "gpt-4-mini", // hoặc gpt-4o nếu bạn đã bật
+    model: "gpt-4o-mini", // hoặc gpt-4o nếu bạn đã bật
     messages
   });
 
