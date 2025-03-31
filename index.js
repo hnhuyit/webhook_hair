@@ -189,7 +189,7 @@ app.post("/webhook", async (req, res) => {
       const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
       // Gọi hàm async để xử lý AI
       // await handleAIReply(userId, userMessage, prompt, token);
-      await handleAssistantReply(userId, userMessage, token);
+      await handleAssistantReply(userId, userMessage, prompt, token);
     }
 
     // ✅ Thành công
