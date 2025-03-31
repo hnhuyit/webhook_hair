@@ -51,7 +51,7 @@ async function askAssistant(message, userId) {
     const runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
     status = runStatus.status;
     if (status === "failed") throw new Error("Assistant failed");
-    await new Promise((res) => setTimeout(res, 1000));
+    await new Promise((res) => setTimeout(res, 5000));
   }
 
   // Lấy trả lời cuối cùng
