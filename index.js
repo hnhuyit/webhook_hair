@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const axios = require('axios');
 require('dotenv').config();
 
-const { handleAIReply } = require("./handlers/aiResponder");
+const { handleAIReply, handleAssistantReply } = require("./handlers/aiResponder");
 
 const app = express();
 app.use(express.static("public"));
@@ -188,7 +188,8 @@ app.post("/webhook", async (req, res) => {
 
       const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
       // Gọi hàm async để xử lý AI
-      await handleAIReply(userId, userMessage, prompt, token);
+      // await handleAIReply(userId, userMessage, prompt, token);
+      await handleAssistantReply(userId, userMessage, token);
     }
 
     // ✅ Thành công
