@@ -56,7 +56,13 @@ async function askAssistant(message, userId) {
 
   // Lấy trả lời cuối cùng
   const messages = await openai.beta.threads.messages.list(threadId);
-  const reply = messages.data[0].content[0].text.value;
+  
+  // Chỉ lấy message mới nhất từ Assistant
+  const latest = messages.data
+  .filter((msg) => msg.role === "assistant")
+  .sort((a, b) => b.created_at - a.created_at)[0];
+
+  const reply = latest?.content?.[0]?.text?.value;
 
   return reply.trim();
 }

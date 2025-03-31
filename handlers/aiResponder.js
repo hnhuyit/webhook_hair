@@ -7,7 +7,7 @@ async function handleAIReply(userId, userMessage, prompt, token) {
     const aiReply = await askAI(userMessage, prompt);     // 🤖 Gọi AI trả lời
     try {
       await replyZalo(userId, aiReply, token);       // 📩 Gửi cho người dùng
-      console.log("✅ AI phản hồi:", aiReply);
+      console.log("✅ AI Assistant phản hồi:", assistantReply);
     } catch (sendErr) {
       console.error("❌ Lỗi khi gửi phản hồi cho user:", sendErr.message);
     }
