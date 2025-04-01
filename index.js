@@ -29,6 +29,9 @@ const token = process.env.OA_ACCESS_TOKEN;
 const token_tuktuk = process.env.OA_TUKTUK;
 const token_anna = process.env.OA_ANNA;
 
+
+//Ghi nhận lead từ conversation kèm info để update Customer
+
 // Add support for GET requests to our webhook
 app.get("/messaging-webhook", (req, res) => {
   

@@ -1,5 +1,6 @@
 require("dotenv").config();
 const fs = require('fs');
+const Airtable = require("airtable");
 // const prompt = require("./config/gptService");
 
 // const prompt = fs.readFileSync("./config/systemPrompt.txt", "utf8"); //process.env.SYSTEM_PROMPT || "Bạn là trợ lý OA.";
@@ -7,27 +8,113 @@ const fs = require('fs');
 const OpenAI = require("openai");
 require("dotenv").config();
 
-// const userThreads = JSON.parse(fs.readFileSync('userThreads.json', 'utf-8'));
-let userThreads = {};
-const raw = fs.readFileSync('userThreads.json', 'utf-8');
-if (raw.trim()) {
-  userThreads = JSON.parse(raw);
-}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+// Config Airtable
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base("apptmh0D4kfxxCTn1");
+const TABLE_NAME = "Customers";
 
-// 🧠 Lấy hoặc tạo thread_id cho user
+
 async function getOrCreateThread(userId) {
-  if (userThreads[userId]) return userThreads[userId];
+  try {
+    const records = await base(TABLE_NAME)
+      .select({ filterByFormula: `{ZaloUID} = '${userId}'`, maxRecords: 1 })
+      .firstPage();
 
-  const thread = await openai.beta.threads.create();
-  userThreads[userId] = thread.id;
-  fs.writeFileSync('userThreads.json', JSON.stringify(userThreads, null, 2));
-  return thread.id;
+    if (records.length > 0) {
+      const threadId = records[0].fields.ThreadID;
+      console.log("🔁 Đã tìm thấy thread:", threadId);
+      return threadId;
+    }
+    const thread = await openai.beta.threads.create();
+
+    await base(TABLE_NAME).create([
+      {
+        fields: {
+          ZaloUID: userId,
+          ThreadID: thread.id,
+          // Status: "anonymous",
+          // Source: "Zalo Webhook",
+          LastInteraction: new Date().toISOString(),
+        },
+      },
+    ]);
+    // 3. Lưu vào Airtable
+    await base(TABLE_NAME).create([
+      {
+        fields: {
+          ZaloUID: userId,
+          ThreadID: thread.id,
+          LastUpdated: new Date().toISOString(),
+        },
+      },
+    ]);
+
+    console.log("✅ Tạo thread mới & lưu vào Airtable:", thread.id);
+    return thread.id;
+  } catch (err) {
+    console.error("🔥 Lỗi getOrCreateThread:", err);
+    throw err;
+  }
 }
+
+// async function getOrCreateThread(userId) {
+//   try {
+//     // 1. Kiểm tra xem userId đã có trong bảng Airtable chưa
+//     const records = await base(TABLE_NAME)
+//       .select({
+//         filterByFormula: `{ZaloUID} = '${userId}'`,
+//         maxRecords: 1,
+//       })
+//       .firstPage();
+
+//     if (records.length > 0) {
+//       const threadId = records[0].fields.ThreadID;
+//       console.log("🔁 Đã tìm thấy thread:", threadId);
+//       return threadId;
+//     }
+
+//     // 2. Nếu chưa có → tạo thread mới trên OpenAI
+//     const thread = await openai.beta.threads.create();
+
+//     // 3. Lưu vào Airtable
+//     await base(TABLE_NAME).create([
+//       {
+//         fields: {
+//           ZaloUID: userId,
+//           ThreadID: thread.id,
+//           LastUpdated: new Date().toISOString(),
+//         },
+//       },
+//     ]);
+
+//     console.log("✅ Tạo thread mới & lưu vào Airtable:", thread.id);
+//     return thread.id;
+//   } catch (err) {
+//     console.error("🔥 Lỗi getOrCreateThread:", err);
+//     throw err;
+//   }
+// }
+
+// => Dùng Airtblae để lưu Thread
+// const userThreads = JSON.parse(fs.readFileSync('userThreads.json', 'utf-8'));
+// let userThreads = {};
+// const raw = fs.readFileSync('userThreads.json', 'utf-8');
+// if (raw.trim()) {
+//   userThreads = JSON.parse(raw);
+// }
+// // 🧠 Lấy hoặc tạo thread_id cho user
+// async function getOrCreateThread(userId) {
+//   if (userThreads[userId]) return userThreads[userId];
+
+//   const thread = await openai.beta.threads.create();
+//   userThreads[userId] = thread.id;
+//   fs.writeFileSync('userThreads.json', JSON.stringify(userThreads, null, 2));
+//   return thread.id;
+// }
 
 async function getRecentThreadHistory(threadId, days = 7) {
   const res = await openai.beta.threads.messages.list(threadId);
