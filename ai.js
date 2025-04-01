@@ -38,7 +38,7 @@ async function getOrCreateThread(userId) {
           ThreadID: thread.id,
           // Status: "anonymous",
           // Source: "Zalo Webhook",
-          LastInteraction: new Date().toISOString(),
+          // LastInteraction: new Date().toISOString(),
         },
       },
     ]);
@@ -48,7 +48,7 @@ async function getOrCreateThread(userId) {
         fields: {
           ZaloUID: userId,
           ThreadID: thread.id,
-          LastUpdated: new Date().toISOString(),
+          // LastUpdated: new Date().toISOString(),
         },
       },
     ]);
