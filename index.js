@@ -152,9 +152,9 @@ app.post("/webhook", async (req, res) => {
     //  console.log("---- Nhận request từ Zalo ----", rawBody);
 
     const { event_name, sender, message } = req.body;
+    const userId = sender.id;
+    const userMessage = message.text;
     if (event_name === "user_send_text") {
-      const userId = sender.id;
-      const userMessage = message.text;
       console.log(`Bạn vừa gửi: "${userMessage}"`);
 
       // Gọi hàm async để xử lý AI
