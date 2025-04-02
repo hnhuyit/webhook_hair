@@ -283,11 +283,16 @@ async function askAssistantdraft(message, userId) {
 
 //with AI
 async function askAI(message, prompt, history) {
+
+  const cleanHistory = Array.isArray(history)
+    ? history.filter(msg => msg?.role && typeof msg.content === "string")
+    : [];
+
   const res = await openai.chat.completions.create({
     model: "gpt-4o-mini", // hoặc gpt-4 nếu bạn dùng
     messages: [
       { role: "system", content: prompt },
-      ...history,
+      ...cleanHistory,
       { role: "user", content: message }
     ]
   });

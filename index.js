@@ -246,6 +246,7 @@ app.post("/webhook", async (req, res) => {
 
     await saveMessage({ userId, role: "user", userMessage });
     const history = await getRecentMessages(userId);
+    console.log("history", history)
     
     await updateLastInteractionOnlyIfNewDay(userId, event_name);
     if (event_name === "user_send_text") {
