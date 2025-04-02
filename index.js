@@ -212,7 +212,6 @@ async function updateLastInteractionOnlyIfNewDay(userId, event_name) {
   }
 }
 
-
 async function saveMessage({ userId, role, message }) {
   await base(ChatHistory).create({
     UserID: userId,
@@ -255,7 +254,7 @@ app.post("/webhook", async (req, res) => {
       // Gọi hàm async để xử lý AI
       const aiReply = await handleAIReply(userId, userMessage, SYSTEM_PROMPT, history, token);
       
-      await saveMessage({ userId, role: "bot", message: aiReply });
+      await saveMessage({ userId, role: "assistant", message: aiReply });
 
       // await handleAssistantReply(userId, userMessage, token);
     } else if (unsupportedTypes.includes(event_name)) {
