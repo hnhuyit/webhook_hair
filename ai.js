@@ -226,6 +226,12 @@ async function askAssistant(message, userId) {
     const result = await openai.beta.threads.runs.retrieve(threadId, run.id);
     status = result.status;
     if (status === "failed") throw new Error("Assistant failed");
+
+    if (status === "requires_action") {
+      console.warn("⚠️ Assistant yêu cầu gọi function – chưa xử lý logic đó.");
+      break;
+    }
+
     await new Promise((r) => setTimeout(r, 1000));
   }
 
