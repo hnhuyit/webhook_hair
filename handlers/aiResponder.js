@@ -2,15 +2,17 @@
 const { askAI, askAssistant } = require("../ai");
 const { replyZalo } = require("../zalo");
 
-async function handleAIReply(userId, userMessage, prompt, token) {
+async function handleAIReply(userId, userMessage, prompt, history, token) {
   try {
-    const aiReply = await askAI(userMessage, prompt);     // 🤖 Gọi AI trả lời
+    const aiReply = await askAI(userMessage, prompt, history);     // 🤖 Gọi AI trả lời
     try {
       await replyZalo(userId, aiReply, token);       // 📩 Gửi cho người dùng
       console.log("✅ AI Assistant phản hồi:", aiReply);
     } catch (sendErr) {
       console.error("❌ Lỗi khi gửi phản hồi cho user:", sendErr.message);
     }
+    
+    return aiReply; // ✅ RETURN ở đây để save vào Airtable
   } catch (err) {
     console.error("❌ Lỗi phản hồi AI:", err.message);
 

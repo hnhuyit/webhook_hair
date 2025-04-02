@@ -14,6 +14,7 @@ app.use(express.static("public"));
 // Config Airtable
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base("apptmh0D4kfxxCTn1");
 const TABLE_NAME = "Customers";
+const ChatHistory = "ChatHistory";
 
 // Middleware để lấy raw body
 app.use(bodyParser.json({
@@ -211,6 +212,28 @@ async function updateLastInteractionOnlyIfNewDay(userId, event_name) {
   }
 }
 
+
+async function saveMessage({ userId, role, message }) {
+  await base(ChatHistory).create({
+    UserID: userId,
+    Role: role,
+    Message: message,
+    Timestamp: dayjs().toISOString()
+  });
+}
+async function getRecentMessages(userId, limit = 10) {
+  const records = await base(ChatHistory).select({
+    filterByFormula: `{UserID} = "${userId}"`,
+    sort: [{ field: "Timestamp", direction: "desc" }],
+    maxRecords: limit
+  }).firstPage();
+
+  return records.map(r => ({
+    role: r.get("Role"),
+    content: r.get("Message")
+  })).reverse(); // Đảo ngược lại thứ tự cho đúng lịch sử
+}
+
 //zalo: Hoang Hưng Thịnh
 app.post("/webhook", async (req, res) => {
   try {
@@ -221,13 +244,19 @@ app.post("/webhook", async (req, res) => {
     const { event_name, sender, message } = req.body;
     const userId = sender.id;
     const userMessage = message.text;
+
+    await saveMessage({ userId, role: "user", userMessage });
+    const history = await getRecentMessages(userId);
     
     await updateLastInteractionOnlyIfNewDay(userId, event_name);
     if (event_name === "user_send_text") {
       console.log(`Bạn vừa gửi: "${userMessage}"`);
 
       // Gọi hàm async để xử lý AI
-      await handleAIReply(userId, userMessage, SYSTEM_PROMPT, token);
+      const aiReply = await handleAIReply(userId, userMessage, SYSTEM_PROMPT, history, token);
+      
+      await saveMessage({ userId, role: "bot", message: aiReply });
+
       // await handleAssistantReply(userId, userMessage, token);
     } else if (unsupportedTypes.includes(event_name)) {
       await replyZalo(userId, `❗ Trợ lý AI hiện tại **chưa hỗ trợ xử lý loại nội dung này**.\n\n📌 Vui lòng gửi tin nhắn văn bản để được phản hồi chính xác nhé.`, token);

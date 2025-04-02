@@ -282,11 +282,12 @@ async function askAssistantdraft(message, userId) {
 }
 
 //with AI
-async function askAI(message, prompt) {
+async function askAI(message, prompt, history) {
   const res = await openai.chat.completions.create({
     model: "gpt-4o-mini", // hoặc gpt-4 nếu bạn dùng
     messages: [
       { role: "system", content: prompt },
+      ...history,
       { role: "user", content: message }
     ]
   });
