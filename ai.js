@@ -124,9 +124,39 @@ async function getRecentThreadHistory(threadId, days = 7) {
   return recentMessages;
 }
 
+async function updateLastInteraction(userId) {
+  try {
+    const records = await base(TABLE_NAME)
+      .select({
+        filterByFormula: `{ZaloUID} = '${userId}'`,
+        maxRecords: 1,
+      })
+      .firstPage();
+
+    if (records.length === 0) {
+      console.warn("⚠️ Không tìm thấy user để update LastInteraction:", userId);
+      return;
+    }
+
+    await base(TABLE_NAME).update([
+      {
+        id: records[0].id,
+        fields: {
+          LastInteraction: new Date().toISOString(),
+        },
+      },
+    ]);
+
+    console.log("✅ Cập nhật LastInteraction cho:", userId);
+  } catch (err) {
+    console.error("❌ Lỗi updateLastInteraction:", err);
+  }
+}
+
 //with Assistant :askAssistantWithRecentContext
 async function askAssistant(message, prompt, userId) {
   const threadId = await getOrCreateThread(userId); // bạn tự mapping user ↔ thread
+  await updateLastInteraction(userId); // 👉 Cập nhật thời gian tương tác
 
   const recentHistory = await getRecentThreadHistory(threadId);
 
