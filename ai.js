@@ -293,7 +293,21 @@ async function askAI(message, prompt, history) {
     messages: [
       { role: "system", content: prompt },
       ...cleanHistory,
-      { role: "user", content: message }
+      { role: "user", content: 
+          [
+            {
+                type: "file",
+                file: {
+                    file_id: "file-6CXFs4ZD9tjfduS5xNzdTV",
+                }
+            },
+            {
+                type: "text",
+                text: message,
+            },
+        ],
+
+      }
     ]
   });
   return res.choices[0].message.content.trim();
