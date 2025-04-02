@@ -1,13 +1,10 @@
 require("dotenv").config();
-const fs = require('fs');
+const OpenAI = require("openai");
 const Airtable = require("airtable");
 // const prompt = require("./config/gptService");
 
 // const prompt = fs.readFileSync("./config/systemPrompt.txt", "utf8"); //process.env.SYSTEM_PROMPT || "Bạn là trợ lý OA.";
 // ai.js (hỗ trợ OpenAI SDK v4+)
-const OpenAI = require("openai");
-require("dotenv").config();
-
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -17,12 +14,44 @@ const openai = new OpenAI({
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base("apptmh0D4kfxxCTn1");
 const TABLE_NAME = "Customers";
 
+async function getZaloUserProfile(uid, accessToken) {
+  try {
+    const res = await fetch("https://openapi.zalo.me/v2.0/oa/getprofile", {
+      method: "POST",
+      headers: {
+        "access_token": accessToken,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ user_id: uid })
+    });
+
+    const data = await res.json();
+
+    if (data.error === 0) {
+      console.log("✅ Zalo user info:", data.data);
+      return data.data; // { display_name, avatar, gender, ... }
+    } else {
+      console.warn("⚠️ Không lấy được profile Zalo:", data.message);
+      return null;
+    }
+  } catch (error) {
+    console.error("❌ Lỗi khi gọi Zalo getprofile:", error);
+    return null;
+  }
+}
 
 async function getOrCreateThread(userId) {
   try {
     const records = await base(TABLE_NAME)
       .select({ filterByFormula: `{ZaloUID} = '${userId}'`, maxRecords: 1 })
       .firstPage();
+
+    const profile = await getZaloUserProfile(userId, process.env.OA_ACCESS_TOKEN);
+    const displayName = profile?.display_name || "Zalo User";
+    const avatar = profile?.avatar || "";
+    const gender = profile?.gender || ""; // 1 = nam, 2 = nữ
+    const location = profile?.shared_info?.location || "";
+    const birthday = profile?.shared_info?.birthday || "";
 
     if (records.length > 0) {
       const threadId = records[0].fields.ThreadID;
@@ -33,6 +62,11 @@ async function getOrCreateThread(userId) {
           id: records[0].id,
           fields: {
             LastInteraction: new Date().toISOString(), // chuẩn ISO, Airtable hiểu
+            Name: displayName,
+            Avatar: avatar,
+            Gender: gender,
+            Location: location,
+            Birthday: birthday,
           },
         },
       ]);
@@ -49,6 +83,11 @@ async function getOrCreateThread(userId) {
           ZaloUID: userId,
           ThreadID: thread.id,
           LastInteraction: new Date().toISOString(),
+          Name: displayName,
+          Avatar: avatar,
+          Gender: gender,
+          Location: location,
+          Birthday: birthday,
         },
       },
     ]);
