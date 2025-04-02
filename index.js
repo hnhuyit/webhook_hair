@@ -27,6 +27,7 @@ const APP_SECRET = process.env.APP_SECRET;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "1234567890";
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "";
 const PAGE_ID = process.env.PAGE_ID || "543096242213723";
+const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT || "";
 
 // const prompt = require("./config/gptService");
 // const prompt_tuktuk = require("./config/gptServiceTuktuk");
@@ -208,8 +209,8 @@ app.post("/webhook", async (req, res) => {
       console.log(`Bạn vừa gửi: "${userMessage}"`);
 
       // Gọi hàm async để xử lý AI
-      // await handleAIReply(userId, userMessage, prompt, token);
-      await handleAssistantReply(userId, userMessage, token);
+      await handleAIReply(userId, userMessage, SYSTEM_PROMPT, token);
+      // await handleAssistantReply(userId, userMessage, token);
     } else if (unsupportedTypes.includes(event_name)) {
       await replyZalo(userId, `❗ Trợ lý AI hiện tại **chưa hỗ trợ xử lý loại nội dung này**.\n\n📌 Vui lòng gửi tin nhắn văn bản để được phản hồi chính xác nhé.`, token);
     } else {
