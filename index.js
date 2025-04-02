@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const axios = require('axios');
+const Airtable = require("airtable");
 require('dotenv').config();
 
 const { handleAIReply, handleAssistantReply } = require("./handlers/aiResponder");
@@ -9,6 +10,11 @@ const { replyZalo } = require("./zalo");
 
 const app = express();
 app.use(express.static("public"));
+
+// Config Airtable
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base("apptmh0D4kfxxCTn1");
+const TABLE_NAME = "Customers";
+
 // Middleware để lấy raw body
 app.use(bodyParser.json({
   verify: (req, res, buf) => {
