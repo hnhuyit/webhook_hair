@@ -5,6 +5,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 const { handleAIReply, handleAssistantReply } = require("./handlers/aiResponder");
+const { replyZalo } = require("./zalo");
 
 const app = express();
 app.use(express.static("public"));
@@ -29,6 +30,15 @@ const token = process.env.OA_ACCESS_TOKEN;
 const token_tuktuk = process.env.OA_TUKTUK;
 const token_anna = process.env.OA_ANNA;
 
+const unsupportedTypes = [
+  "user_send_image",
+  "user_send_video",
+  "user_send_audio",
+  "user_send_file",
+  "user_send_sticker",
+  "user_send_location",
+  "user_send_business_card"
+];
 
 //Ghi nhận lead từ conversation kèm info để update Customer
 
@@ -139,19 +149,21 @@ app.post("/webhook", async (req, res) => {
   try {
     const rawBody = req.rawBody;
      // 👉 Log headers để kiểm tra khi Zalo gửi test
-     console.log("---- Nhận request từ Zalo ----", rawBody);
+    //  console.log("---- Nhận request từ Zalo ----", rawBody);
 
     const { event_name, sender, message } = req.body;
     if (event_name === "user_send_text") {
       const userId = sender.id;
       const userMessage = message.text;
-
-      const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
-      console.log(reply);
+      console.log(`Bạn vừa gửi: "${userMessage}"`);
 
       // Gọi hàm async để xử lý AI
       // await handleAIReply(userId, userMessage, prompt, token);
       await handleAssistantReply(userId, userMessage, token);
+    } else if (unsupportedTypes.includes(event_name)) {
+      await replyZalo(userId, `❗ Trợ lý AI hiện tại **chưa hỗ trợ xử lý loại nội dung này**.\n\n📌 Vui lòng gửi tin nhắn văn bản để được phản hồi chính xác nhé.`, token);
+    } else {
+      console.log("❓ Loại event chưa xử lý:", event_name);
     }
 
     // ✅ Thành công
