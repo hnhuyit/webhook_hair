@@ -232,7 +232,7 @@ async function askAssistant(message, userId) {
   // Lấy message cuối từ assistant
   const messages = await openai.beta.threads.messages.list(threadId);
   const latest = messages.data
-    .filter((m) => m.role === "assistant")
+    .filter((m) => m.run_id === run.id && m.role === "assistant")
     .sort((a, b) => b.created_at - a.created_at)[0];
 
   return latest?.content?.[0]?.text?.value?.trim() || "[Không có phản hồi]";
