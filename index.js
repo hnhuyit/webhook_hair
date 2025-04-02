@@ -21,9 +21,9 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "1234567890";
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "";
 const PAGE_ID = process.env.PAGE_ID || "543096242213723";
 
-const prompt = require("./config/gptService");
-const prompt_tuktuk = require("./config/gptServiceTuktuk");
-const prompt_anna = require("./config/gptServiceAnna");
+// const prompt = require("./config/gptService");
+// const prompt_tuktuk = require("./config/gptServiceTuktuk");
+// const prompt_anna = require("./config/gptServiceAnna");
 
 const token = process.env.OA_ACCESS_TOKEN;
 const token_tuktuk = process.env.OA_TUKTUK;
@@ -138,61 +138,20 @@ async function callSendAPI(sender_psid, response) {
 app.post("/webhook", async (req, res) => {
   try {
     const rawBody = req.rawBody;
-    const timestamp = req.headers["x-zalopayload-timestamp"];
-    const signature = req.headers["x-zevent-signature"];
-
      // 👉 Log headers để kiểm tra khi Zalo gửi test
-     console.log("---- Nhận request từ Zalo ----");
-    //  console.log("Headers:", req.headers);
-    //  console.log("Raw Body:", rawBody);
-    //  console.log("Parsed Body:", req.body);
-
-    // if (!signature || !rawBody) {
-    //   // console.error("❌ Thiếu header hoặc raw body");
-    //   console.warn("❌ Thiếu thông tin xác thực, trả về 200 để test webhook Zalo");
-    //   return res.status(200).send("Zalo webhook test accepted");
-    // }
-
-    // // ✅ Nếu có chữ ký nhưng KHÔNG có timestamp → bỏ timestamp khỏi xác thực
-    // const rawSignature = signature.replace("mac=", "").trim();
-    // const components = APP_ID + rawBody + (timestamp || "") + APP_SECRET;
-
-    // let expectedMac = "";
-    // if (timestamp) {
-    //   expectedMac = crypto.createHash("sha256")
-    //     .update(APP_ID + rawBody + timestamp + APP_SECRET)
-    //     .digest("hex");
-    // } else {
-    //   expectedMac = crypto.createHash("sha256")
-    //     .update(components)
-    //     .digest("hex");
-    // }
-
-    // console.log("📦 Expect:", expectedMac);
-    // console.log("📦 From Zalo:", rawSignature);
-    
-    // if (rawSignature !== expectedMac) {
-    //   console.warn("❌ Sai chữ ký!");
-    //   return res.status(401).send("Invalid signature");
-    // }
-
-    // if (signature !== expectedMac) {
-    //   // console.error("❌ Sai chữ ký!");
-    //   console.warn("❌ Chữ ký sai – từ chối request");
-    //   return res.status(401).send("Invalid signature");
-    // }
-
+     console.log("---- Nhận request từ Zalo ----", rawBody);
 
     const { event_name, sender, message } = req.body;
-
     if (event_name === "user_send_text") {
       const userId = sender.id;
       const userMessage = message.text;
 
       const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
+      console.log(reply);
+
       // Gọi hàm async để xử lý AI
       // await handleAIReply(userId, userMessage, prompt, token);
-      await handleAssistantReply(userId, userMessage, prompt, token);
+      await handleAssistantReply(userId, userMessage, token);
     }
 
     // ✅ Thành công

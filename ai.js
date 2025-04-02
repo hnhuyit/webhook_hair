@@ -207,79 +207,74 @@ async function getRecentThreadHistory(threadId, days = 7) {
 
 
 //with Assistant :askAssistantWithRecentContext
-async function askAssistant(message, prompt, userId) {
+async function askAssistant(message, userId) {
   const threadId = await getOrCreateThread(userId); // bạn tự mapping user ↔ thread
-  // await updateLastInteraction(userId); // 👉 Cập nhật thời gian tương tác
-
-  const recentHistory = await getRecentThreadHistory(threadId);
-
-  const messages = [
-    {
-      role: "system",
-      content: prompt
-    },
-    ...recentHistory,
-    { role: "user", content: message }
-  ];
-
-  const res = await openai.chat.completions.create({
-    model: "gpt-4o-mini", // hoặc gpt-4o nếu bạn đã bật
-    messages
+  // Gửi message người dùng vào thread
+  await openai.beta.threads.messages.create(threadId, {
+    role: "user",
+    content: message,
   });
 
-  const reply = res.choices[0].message.content.trim();
+  // Gọi Assistant (dùng assistant_id bạn tạo sẵn)
+  const run = await openai.beta.threads.runs.create(threadId, {
+    assistant_id: process.env.ASSISTANT_ID,
+  });
 
-  // Ghi lại message mới vào thread
+  // Polling để đợi Assistant trả lời
+  let status = "queued";
+  while (status !== "completed") {
+    const result = await openai.beta.threads.runs.retrieve(threadId, run.id);
+    status = result.status;
+    if (status === "failed") throw new Error("Assistant failed");
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+
+  // Lấy message cuối từ assistant
+  const messages = await openai.beta.threads.messages.list(threadId);
+  const latest = messages.data
+    .filter((m) => m.role === "assistant")
+    .sort((a, b) => b.created_at - a.created_at)[0];
+
+  return latest?.content?.[0]?.text?.value?.trim() || "[Không có phản hồi]";
+}
+
+//with Assistant
+async function askAssistantdraft(message, userId) {
+  // Lấy hoặc tạo thread cho user
+  const threadId = await getOrCreateThread(userId);
+
+  // Thêm message của user vào thread
   await openai.beta.threads.messages.create(threadId, {
     role: "user",
     content: message
   });
 
-  await openai.beta.threads.messages.create(threadId, {
-    role: "assistant",
-    content: reply
+  // Chạy assistant trên thread
+  const run = await openai.beta.threads.runs.create(threadId, {
+    assistant_id: process.env.ASSISTANT_ID 
   });
 
-  return reply;
-}
+  // Chờ assistant xử lý xong
+  let status = "queued";
+  while (status !== "completed") {
+    const runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
+    status = runStatus.status;
+    if (status === "failed") throw new Error("Assistant failed");
+    await new Promise((res) => setTimeout(res, 5000));
+  }
 
-// //with Assistant
-// async function askAssistantdraft(message, userId) {
-//   // Lấy hoặc tạo thread cho user
-//   const threadId = await getOrCreateThread(userId);
-
-//   // Thêm message của user vào thread
-//   await openai.beta.threads.messages.create(threadId, {
-//     role: "user",
-//     content: message
-//   });
-
-//   // Chạy assistant trên thread
-//   const run = await openai.beta.threads.runs.create(threadId, {
-//     assistant_id: process.env.ASSISTANT_ID
-//   });
-
-//   // Chờ assistant xử lý xong
-//   let status = "queued";
-//   while (status !== "completed") {
-//     const runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
-//     status = runStatus.status;
-//     if (status === "failed") throw new Error("Assistant failed");
-//     await new Promise((res) => setTimeout(res, 5000));
-//   }
-
-//   // Lấy trả lời cuối cùng
-//   const messages = await openai.beta.threads.messages.list(threadId);
+  // Lấy trả lời cuối cùng
+  const messages = await openai.beta.threads.messages.list(threadId);
   
-//   // Chỉ lấy message mới nhất từ Assistant
-//   const latest = messages.data
-//   .filter((msg) => msg.role === "assistant")
-//   .sort((a, b) => b.created_at - a.created_at)[0];
+  // Chỉ lấy message mới nhất từ Assistant
+  const latest = messages.data
+  .filter((msg) => msg.role === "assistant")
+  .sort((a, b) => b.created_at - a.created_at)[0];
 
-//   const reply = latest?.content?.[0]?.text?.value;
+  const reply = latest?.content?.[0]?.text?.value;
 
-//   return reply.trim();
-// }
+  return reply.trim();
+}
 
 //with AI
 async function askAI(message, prompt) {

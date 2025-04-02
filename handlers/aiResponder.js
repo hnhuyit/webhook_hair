@@ -32,9 +32,9 @@ async function handleAIReply(userId, userMessage, prompt, token) {
   }
 }
 
-async function handleAssistantReply(userId, userMessage, prompt, token) {
+async function handleAssistantReply(userId, userMessage, token) {
   try {
-    const assistantReply = await askAssistant(userMessage, prompt, userId); // 🤖 Gọi Assistant trả lời
+    const assistantReply = await askAssistant(userMessage, userId); // 🤖 Gọi Assistant trả lời
 
     try {
       await replyZalo(userId, assistantReply, token); // 📩 Gửi phản hồi cho người dùng
