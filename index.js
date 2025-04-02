@@ -232,6 +232,7 @@ app.post("/webhook", async (req, res) => {
     } else if (unsupportedTypes.includes(event_name)) {
       await replyZalo(userId, `❗ Trợ lý AI hiện tại **chưa hỗ trợ xử lý loại nội dung này**.\n\n📌 Vui lòng gửi tin nhắn văn bản để được phản hồi chính xác nhé.`, token);
     } else {
+      await replyZalo(userId, `Chào bạn, rất vui được kết nối! Mình có thể hỗ trợ gì cho kế hoạch áp dụng AI và Automation cho bạn không?`, token);
       console.log("❓ Loại event chưa xử lý:", event_name);
     }
 
