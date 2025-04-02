@@ -151,7 +151,7 @@ async function callSendAPI(sender_psid, response) {
   }
 }
 
-async function updateLastInteractionOnlyIfNewDay(userId) {
+async function updateLastInteractionOnlyIfNewDay(userId, event_name) {
   try {
     const records = await base(TABLE_NAME)
       .select({
@@ -160,14 +160,31 @@ async function updateLastInteractionOnlyIfNewDay(userId) {
       })
       .firstPage();
 
+    const todayISOString = new Date().toISOString();
+
     if (records.length === 0) {
-      console.warn("⚠️ Không tìm thấy user để update:", userId);
+      console.warn("⚠️ Không tìm thấy user → tiến hành tạo mới:", userId);
+
+      // ✅ Tạo mới nếu chưa có user
+      await base(TABLE_NAME).create([
+        {
+          fields: {
+            ZaloUID: userId,
+            // ThreadID: threadId,
+            event_name: event_name,
+            LastInteraction: todayISOString,
+            // Có thể thêm các trường khác như Name, Avatar, v.v. nếu có
+          },
+        },
+      ]);
+
+      console.log("✅ Đã tạo mới user trong Airtable:", userId);
       return;
     }
 
     const record = records[0];
     const oldDate = record.fields.LastInteraction;
-    const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+    const today = todayISOString.slice(0, 10); // yyyy-mm-dd
 
     if (oldDate) {
       const lastDate = new Date(oldDate).toISOString().slice(0, 10);
@@ -177,19 +194,19 @@ async function updateLastInteractionOnlyIfNewDay(userId) {
       }
     }
 
-    // ✅ Khác ngày → update
+    // ✅ Khác ngày → update LastInteraction
     await base(TABLE_NAME).update([
       {
         id: record.id,
         fields: {
-          LastInteraction: new Date().toISOString(),
+          LastInteraction: todayISOString,
         },
       },
     ]);
 
     console.log("✅ Đã update LastInteraction mới cho:", userId);
   } catch (err) {
-    console.error("🔥 Lỗi khi update LastInteraction:", err);
+    console.error("🔥 Lỗi khi xử lý LastInteraction:", err);
   }
 }
 
@@ -204,7 +221,7 @@ app.post("/webhook", async (req, res) => {
     const userId = sender.id;
     const userMessage = message.text;
     
-    await updateLastInteractionOnlyIfNewDay(userId); // 👈 dùng hàm mới
+    await updateLastInteractionOnlyIfNewDay(userId, event_name);
     if (event_name === "user_send_text") {
       console.log(`Bạn vừa gửi: "${userMessage}"`);
 
@@ -218,7 +235,7 @@ app.post("/webhook", async (req, res) => {
     }
 
     // ✅ Thành công
-    console.log("✅ Webhook nhận được:", req.body);
+    console.log("✅ Webhook nhận được:", event_name, req.body);
     res.sendStatus(200);
   } catch (err) {
     console.error("🔥 Lỗi webhook:", err);
