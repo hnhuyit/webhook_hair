@@ -295,12 +295,12 @@ async function askAI(message, prompt, history) {
       ...cleanHistory,
       { role: "user", content: 
           [
-            {
-                type: "file",
-                file: {
-                    file_id: "file-6CXFs4ZD9tjfduS5xNzdTV",
-                }
-            },
+            // {
+            //     type: "file",
+            //     file: {
+            //         file_id: "file-6CXFs4ZD9tjfduS5xNzdTV",
+            //     }
+            // },
             {
                 type: "text",
                 text: message,
