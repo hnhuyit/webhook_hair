@@ -27,9 +27,9 @@ const APP_SECRET = process.env.APP_SECRET;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "1234567890";
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "";
 const PAGE_ID = process.env.PAGE_ID || "543096242213723";
-const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT || "";
+// const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT || "";
 
-// const prompt = require("./config/gptService");
+const SYSTEM_PROMPT = require("./config/gptService");
 // const prompt_tuktuk = require("./config/gptServiceTuktuk");
 // const prompt_anna = require("./config/gptServiceAnna");
 
