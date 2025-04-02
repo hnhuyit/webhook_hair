@@ -16,19 +16,18 @@ const TABLE_NAME = "Customers";
 
 async function getZaloUserProfile(uid, accessToken) {
   try {
-    const res = await fetch("https://openapi.zalo.me/v2.0/oa/getprofile", {
-      method: "POST",
+    const url = `https://openapi.zalo.me/v2.0/oa/getprofile?user_id=${uid}`;
+    const res = await fetch(url, {
+      method: "GET",
       headers: {
         "access_token": accessToken,
-        "Content-Type": "application/json"
       },
-      body: JSON.stringify({ user_id: uid })
     });
 
     const data = await res.json();
 
     if (data.error === 0) {
-      console.log("✅ Zalo user info:", data.data);
+      console.log("✅ Thông tin người dùng Zalo:", data.data);
       return data.data; // { display_name, avatar, gender, ... }
     } else {
       console.warn("⚠️ Không lấy được profile Zalo:", data.message);
@@ -47,6 +46,7 @@ async function getOrCreateThread(userId) {
       .firstPage();
 
     const profile = await getZaloUserProfile(userId, process.env.OA_ACCESS_TOKEN);
+    console.log("🔁 profile", profile);
     const displayName = profile?.display_name || "Zalo User";
     const avatar = profile?.avatar || "";
     const gender = profile?.gender || ""; // 1 = nam, 2 = nữ
