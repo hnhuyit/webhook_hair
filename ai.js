@@ -14,6 +14,7 @@ const openai = new OpenAI({
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base("apptmh0D4kfxxCTn1");
 const TABLE_NAME = "Customers";
 
+// lỗi server không phải ở VN
 async function getZaloUserProfile(uid, accessToken) {
   try {
     const url = `https://openapi.zalo.me/v2.0/oa/getprofile?user_id=${uid}`;
@@ -45,13 +46,13 @@ async function getOrCreateThread(userId) {
       .select({ filterByFormula: `{ZaloUID} = '${userId}'`, maxRecords: 1 })
       .firstPage();
 
-    const profile = await getZaloUserProfile(userId, process.env.OA_ACCESS_TOKEN);
-    console.log("🔁 profile", profile);
-    const displayName = profile?.display_name || "Zalo User";
-    const avatar = profile?.avatar || "";
-    const gender = profile?.gender || ""; // 1 = nam, 2 = nữ
-    const location = profile?.shared_info?.location || "";
-    const birthday = profile?.shared_info?.birthday || "";
+    // const profile = await getZaloUserProfile(userId, process.env.OA_ACCESS_TOKEN);
+    // console.log("🔁 profile", profile);
+    // const displayName = profile?.display_name || "Zalo User";
+    // const avatar = profile?.avatar || "";
+    // const gender = profile?.gender || ""; // 1 = nam, 2 = nữ
+    // const location = profile?.shared_info?.location || "";
+    // const birthday = profile?.shared_info?.birthday || "";
 
     if (records.length > 0) {
       const threadId = records[0].fields.ThreadID;
@@ -62,11 +63,11 @@ async function getOrCreateThread(userId) {
           id: records[0].id,
           fields: {
             LastInteraction: new Date().toISOString(), // chuẩn ISO, Airtable hiểu
-            Name: displayName,
-            Avatar: avatar,
-            Gender: gender,
-            Location: location,
-            Birthday: birthday,
+            // Name: displayName,
+            // Avatar: avatar,
+            // Gender: gender,
+            // Location: location,
+            // Birthday: birthday,
           },
         },
       ]);
@@ -83,11 +84,11 @@ async function getOrCreateThread(userId) {
           ZaloUID: userId,
           ThreadID: thread.id,
           LastInteraction: new Date().toISOString(),
-          Name: displayName,
-          Avatar: avatar,
-          Gender: gender,
-          Location: location,
-          Birthday: birthday,
+          // Name: displayName,
+          // Avatar: avatar,
+          // Gender: gender,
+          // Location: location,
+          // Birthday: birthday,
         },
       },
     ]);
