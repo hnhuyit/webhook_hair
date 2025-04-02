@@ -57,22 +57,22 @@ async function getOrCreateThread(userId) {
     if (records.length > 0) {
       const threadId = records[0].fields.ThreadID;
 
-      // ✅ Nếu đã có thì cập nhật lại LastInteraction
-      await base(TABLE_NAME).update([
-        {
-          id: records[0].id,
-          fields: {
-            LastInteraction: new Date().toISOString(), // chuẩn ISO, Airtable hiểu
-            // Name: displayName,
-            // Avatar: avatar,
-            // Gender: gender,
-            // Location: location,
-            // Birthday: birthday,
-          },
-        },
-      ]);
+      // // ✅ Nếu đã có thì cập nhật lại LastInteraction
+      // await base(TABLE_NAME).update([
+      //   {
+      //     id: records[0].id,
+      //     fields: {
+      //       LastInteraction: new Date().toISOString(), // chuẩn ISO, Airtable hiểu
+      //       // Name: displayName,
+      //       // Avatar: avatar,
+      //       // Gender: gender,
+      //       // Location: location,
+      //       // Birthday: birthday,
+      //     },
+      //   },
+      // ]);
 
-      console.log("🔁 Đã tìm thấy thread & cập nhật LastInteraction:", threadId);
+      console.log("🔁 Đã tìm thấy thread:", threadId);
       return threadId;
     }
     const thread = await openai.beta.threads.create();

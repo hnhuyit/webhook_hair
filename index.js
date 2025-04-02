@@ -144,6 +144,48 @@ async function callSendAPI(sender_psid, response) {
   }
 }
 
+async function updateLastInteractionOnlyIfNewDay(userId) {
+  try {
+    const records = await base(TABLE_NAME)
+      .select({
+        filterByFormula: `{ZaloUID} = '${userId}'`,
+        maxRecords: 1,
+      })
+      .firstPage();
+
+    if (records.length === 0) {
+      console.warn("⚠️ Không tìm thấy user để update:", userId);
+      return;
+    }
+
+    const record = records[0];
+    const oldDate = record.fields.LastInteraction;
+    const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+
+    if (oldDate) {
+      const lastDate = new Date(oldDate).toISOString().slice(0, 10);
+      if (lastDate === today) {
+        console.log("🟡 Cùng ngày, không cần update LastInteraction:", userId);
+        return; // ❌ Không update
+      }
+    }
+
+    // ✅ Khác ngày → update
+    await base(TABLE_NAME).update([
+      {
+        id: record.id,
+        fields: {
+          LastInteraction: new Date().toISOString(),
+        },
+      },
+    ]);
+
+    console.log("✅ Đã update LastInteraction mới cho:", userId);
+  } catch (err) {
+    console.error("🔥 Lỗi khi update LastInteraction:", err);
+  }
+}
+
 //zalo: Hoang Hưng Thịnh
 app.post("/webhook", async (req, res) => {
   try {
@@ -154,6 +196,8 @@ app.post("/webhook", async (req, res) => {
     const { event_name, sender, message } = req.body;
     const userId = sender.id;
     const userMessage = message.text;
+    
+    await updateLastInteractionOnlyIfNewDay(userId); // 👈 dùng hàm mới
     if (event_name === "user_send_text") {
       console.log(`Bạn vừa gửi: "${userMessage}"`);
 
