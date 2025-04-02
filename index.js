@@ -220,7 +220,7 @@ async function saveMessage({ userId, role, message }) {
     Timestamp: new Date().toISOString()
   });
 }
-async function getRecentMessages(userId, limit = 10) {
+async function getRecentMessages(userId, limit = 100) {
   const records = await base(ChatHistory).select({
     filterByFormula: `{UserID} = "${userId}"`,
     sort: [{ field: "Timestamp", direction: "desc" }],
