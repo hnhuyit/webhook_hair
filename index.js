@@ -244,7 +244,8 @@ app.post("/webhook", async (req, res) => {
     const userId = sender.id;
     const userMessage = message.text;
 
-    await saveMessage({ userId, role: "user", userMessage });
+    await saveMessage({ userId, role: "user", message: userMessage });
+    
     const history = await getRecentMessages(userId);
     console.log("history", history)
     
