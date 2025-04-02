@@ -31,17 +31,6 @@ async function getOrCreateThread(userId) {
     }
     const thread = await openai.beta.threads.create();
 
-    await base(TABLE_NAME).create([
-      {
-        fields: {
-          ZaloUID: userId,
-          ThreadID: thread.id,
-          // Status: "anonymous",
-          // Source: "Zalo Webhook",
-          // LastInteraction: new Date().toISOString(),
-        },
-      },
-    ]);
     // 3. Lưu vào Airtable
     await base(TABLE_NAME).create([
       {
