@@ -218,7 +218,7 @@ async function saveMessage({ userId, role, message }) {
     UserID: userId,
     Role: role,
     Message: message,
-    Timestamp: dayjs().toISOString()
+    Timestamp: new Date().toISOString()
   });
 }
 async function getRecentMessages(userId, limit = 10) {
