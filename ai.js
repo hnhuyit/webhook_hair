@@ -26,7 +26,18 @@ async function getOrCreateThread(userId) {
 
     if (records.length > 0) {
       const threadId = records[0].fields.ThreadID;
-      console.log("🔁 Đã tìm thấy thread:", threadId);
+
+      // ✅ Nếu đã có thì cập nhật lại LastInteraction
+      await base(TABLE_NAME).update([
+        {
+          id: records[0].id,
+          fields: {
+            LastInteraction: new Date().toISOString(), // chuẩn ISO, Airtable hiểu
+          },
+        },
+      ]);
+
+      console.log("🔁 Đã tìm thấy thread & cập nhật LastInteraction:", threadId);
       return threadId;
     }
     const thread = await openai.beta.threads.create();
@@ -37,7 +48,7 @@ async function getOrCreateThread(userId) {
         fields: {
           ZaloUID: userId,
           ThreadID: thread.id,
-          // LastUpdated: new Date().toISOString(),
+          LastInteraction: new Date().toISOString(),
         },
       },
     ]);
@@ -49,6 +60,36 @@ async function getOrCreateThread(userId) {
     throw err;
   }
 }
+
+
+// async function updateLastInteraction(userId) {
+//   try {
+//     const records = await base(TABLE_NAME)
+//       .select({
+//         filterByFormula: `{ZaloUID} = '${userId}'`,
+//         maxRecords: 1,
+//       })
+//       .firstPage();
+
+//     if (records.length === 0) {
+//       console.warn("⚠️ Không tìm thấy user để update LastInteraction:", userId);
+//       return;
+//     }
+
+//     await base(TABLE_NAME).update([
+//       {
+//         id: records[0].id,
+//         fields: {
+//           LastInteraction: new Date().toISOString(),
+//         },
+//       },
+//     ]);
+
+//     console.log("✅ Cập nhật LastInteraction cho:", userId);
+//   } catch (err) {
+//     console.error("❌ Lỗi updateLastInteraction:", err);
+//   }
+// }
 
 // async function getOrCreateThread(userId) {
 //   try {
@@ -124,39 +165,11 @@ async function getRecentThreadHistory(threadId, days = 7) {
   return recentMessages;
 }
 
-async function updateLastInteraction(userId) {
-  try {
-    const records = await base(TABLE_NAME)
-      .select({
-        filterByFormula: `{ZaloUID} = '${userId}'`,
-        maxRecords: 1,
-      })
-      .firstPage();
-
-    if (records.length === 0) {
-      console.warn("⚠️ Không tìm thấy user để update LastInteraction:", userId);
-      return;
-    }
-
-    await base(TABLE_NAME).update([
-      {
-        id: records[0].id,
-        fields: {
-          LastInteraction: new Date().toISOString(),
-        },
-      },
-    ]);
-
-    console.log("✅ Cập nhật LastInteraction cho:", userId);
-  } catch (err) {
-    console.error("❌ Lỗi updateLastInteraction:", err);
-  }
-}
 
 //with Assistant :askAssistantWithRecentContext
 async function askAssistant(message, prompt, userId) {
   const threadId = await getOrCreateThread(userId); // bạn tự mapping user ↔ thread
-  await updateLastInteraction(userId); // 👉 Cập nhật thời gian tương tác
+  // await updateLastInteraction(userId); // 👉 Cập nhật thời gian tương tác
 
   const recentHistory = await getRecentThreadHistory(threadId);
 
