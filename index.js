@@ -200,6 +200,7 @@ async function updateLastInteractionOnlyIfNewDay(userId, event_name) {
         id: record.id,
         fields: {
           LastInteraction: todayISOString,
+          last_event: event_name,
         },
       },
     ]);
