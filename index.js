@@ -15,8 +15,12 @@ import dotenv from "dotenv";
 // Load biến môi trường
 dotenv.config();
 
-const { handleAIReply, handleAssistantReply } = require("./handlers/aiResponder");
-const { replyZalo } = require("./zalo");
+// const { handleAIReply, handleAssistantReply } = require("./handlers/aiResponder");
+// const { replyZalo } = require("./zalo");
+
+import { handleAIReply, handleAssistantReply } from "./handlers/aiResponder.js";
+import { replyZalo } from "./zalo.js"; // hoặc "./zalo.js" nếu file đó là file riêng
+
 
 const app = express();
 app.use(express.static("public"));

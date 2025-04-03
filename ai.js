@@ -342,4 +342,5 @@ async function askAI(message, prompt, history) {
   return res.choices[0].message.content.trim();
 }
 
-module.exports = { askAI, askAssistant };
+// module.exports = { askAI, askAssistant };
+export { askAI, askAssistant };

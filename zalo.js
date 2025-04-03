@@ -33,4 +33,6 @@ async function replyZalo(userId, message, token) {
   }
 }
 
-module.exports = { replyZalo };
+// module.exports = { replyZalo };
+export { replyZalo };
+

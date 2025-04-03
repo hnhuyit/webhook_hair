@@ -1,6 +1,10 @@
 // aiResponder.js
-const { askAI, askAssistant } = require("../ai");
-const { replyZalo } = require("../zalo");
+// const { askAI, askAssistant } = require("../ai");
+// const { replyZalo } = require("../zalo");
+
+// aiResponder.js
+import { askAI, askAssistant } from "../ai.js";
+import { replyZalo } from "../zalo.js";
 
 async function handleAIReply(userId, userMessage, prompt, history, token) {
   try {
@@ -66,4 +70,5 @@ async function handleAssistantReply(userId, userMessage, token) {
   }
 }
 
-module.exports = { handleAIReply, handleAssistantReply };
+// module.exports = { handleAIReply, handleAssistantReply };
+export { handleAIReply, handleAssistantReply };
