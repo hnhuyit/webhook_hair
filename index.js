@@ -321,144 +321,144 @@ app.post("/webhook", async (req, res) => {
 });
 
 
-//zalo: Tuktuk
-app.post("/webhook-tuktuk", async (req, res) => {
-  try {
-    const rawBody = req.rawBody;
-    const timestamp = req.headers["x-zalopayload-timestamp"];
-    const signature = req.headers["x-zevent-signature"];
+// //zalo: Tuktuk
+// app.post("/webhook-tuktuk", async (req, res) => {
+//   try {
+//     const rawBody = req.rawBody;
+//     const timestamp = req.headers["x-zalopayload-timestamp"];
+//     const signature = req.headers["x-zevent-signature"];
 
-     // 👉 Log headers để kiểm tra khi Zalo gửi test
-     console.log("---- Nhận request từ Zalo ----");
-     console.log("Headers:", req.headers);
-     console.log("Raw Body:", rawBody);
-     console.log("Parsed Body:", req.body);
+//      // 👉 Log headers để kiểm tra khi Zalo gửi test
+//      console.log("---- Nhận request từ Zalo ----");
+//      console.log("Headers:", req.headers);
+//      console.log("Raw Body:", rawBody);
+//      console.log("Parsed Body:", req.body);
 
-    // if (!signature || !rawBody) {
-    //   // console.error("❌ Thiếu header hoặc raw body");
-    //   console.warn("❌ Thiếu thông tin xác thực, trả về 200 để test webhook Zalo");
-    //   return res.status(200).send("Zalo webhook test accepted");
-    // }
+//     // if (!signature || !rawBody) {
+//     //   // console.error("❌ Thiếu header hoặc raw body");
+//     //   console.warn("❌ Thiếu thông tin xác thực, trả về 200 để test webhook Zalo");
+//     //   return res.status(200).send("Zalo webhook test accepted");
+//     // }
 
-    // // ✅ Nếu có chữ ký nhưng KHÔNG có timestamp → bỏ timestamp khỏi xác thực
-    // const rawSignature = signature.replace("mac=", "").trim();
-    // const components = APP_ID + rawBody + (timestamp || "") + APP_SECRET;
+//     // // ✅ Nếu có chữ ký nhưng KHÔNG có timestamp → bỏ timestamp khỏi xác thực
+//     // const rawSignature = signature.replace("mac=", "").trim();
+//     // const components = APP_ID + rawBody + (timestamp || "") + APP_SECRET;
 
-    // let expectedMac = "";
-    // if (timestamp) {
-    //   expectedMac = crypto.createHash("sha256")
-    //     .update(APP_ID + rawBody + timestamp + APP_SECRET)
-    //     .digest("hex");
-    // } else {
-    //   expectedMac = crypto.createHash("sha256")
-    //     .update(components)
-    //     .digest("hex");
-    // }
+//     // let expectedMac = "";
+//     // if (timestamp) {
+//     //   expectedMac = crypto.createHash("sha256")
+//     //     .update(APP_ID + rawBody + timestamp + APP_SECRET)
+//     //     .digest("hex");
+//     // } else {
+//     //   expectedMac = crypto.createHash("sha256")
+//     //     .update(components)
+//     //     .digest("hex");
+//     // }
 
-    // console.log("📦 Expect:", expectedMac);
-    // console.log("📦 From Zalo:", rawSignature);
+//     // console.log("📦 Expect:", expectedMac);
+//     // console.log("📦 From Zalo:", rawSignature);
     
-    // if (rawSignature !== expectedMac) {
-    //   console.warn("❌ Sai chữ ký!");
-    //   return res.status(401).send("Invalid signature");
-    // }
+//     // if (rawSignature !== expectedMac) {
+//     //   console.warn("❌ Sai chữ ký!");
+//     //   return res.status(401).send("Invalid signature");
+//     // }
 
-    // if (signature !== expectedMac) {
-    //   // console.error("❌ Sai chữ ký!");
-    //   console.warn("❌ Chữ ký sai – từ chối request");
-    //   return res.status(401).send("Invalid signature");
-    // }
-
-
-    const { event_name, sender, message } = req.body;
-
-    if (event_name === "user_send_text") {
-      const userId = sender.id;
-      const userMessage = message.text;
-
-      const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
-      // Gọi hàm async để xử lý AI
-      await handleAIReply(userId, userMessage, "Bạn là trợ lý OA.", token_tuktuk);
-    }
-
-    // ✅ Thành công
-    console.log("✅ Webhook nhận được:", req.body);
-    res.sendStatus(200);
-  } catch (err) {
-    console.error("🔥 Lỗi webhook:", err);
-    res.sendStatus(500);
-  }
-});
+//     // if (signature !== expectedMac) {
+//     //   // console.error("❌ Sai chữ ký!");
+//     //   console.warn("❌ Chữ ký sai – từ chối request");
+//     //   return res.status(401).send("Invalid signature");
+//     // }
 
 
-//zalo: Tuktuk
-app.post("/webhook-anna", async (req, res) => {
-  try {
-    const rawBody = req.rawBody;
-    const timestamp = req.headers["x-zalopayload-timestamp"];
-    const signature = req.headers["x-zevent-signature"];
+//     const { event_name, sender, message } = req.body;
 
-     // 👉 Log headers để kiểm tra khi Zalo gửi test
-     console.log("---- Nhận request từ Zalo ----");
-     console.log("Headers:", req.headers);
-     console.log("Raw Body:", rawBody);
-     console.log("Parsed Body:", req.body);
+//     if (event_name === "user_send_text") {
+//       const userId = sender.id;
+//       const userMessage = message.text;
 
-    // if (!signature || !rawBody) {
-    //   // console.error("❌ Thiếu header hoặc raw body");
-    //   console.warn("❌ Thiếu thông tin xác thực, trả về 200 để test webhook Zalo");
-    //   return res.status(200).send("Zalo webhook test accepted");
-    // }
+//       const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
+//       // Gọi hàm async để xử lý AI
+//       await handleAIReply(userId, userMessage, "Bạn là trợ lý OA.", token_tuktuk);
+//     }
 
-    // // ✅ Nếu có chữ ký nhưng KHÔNG có timestamp → bỏ timestamp khỏi xác thực
-    // const rawSignature = signature.replace("mac=", "").trim();
-    // const components = APP_ID + rawBody + (timestamp || "") + APP_SECRET;
+//     // ✅ Thành công
+//     console.log("✅ Webhook nhận được:", req.body);
+//     res.sendStatus(200);
+//   } catch (err) {
+//     console.error("🔥 Lỗi webhook:", err);
+//     res.sendStatus(500);
+//   }
+// });
 
-    // let expectedMac = "";
-    // if (timestamp) {
-    //   expectedMac = crypto.createHash("sha256")
-    //     .update(APP_ID + rawBody + timestamp + APP_SECRET)
-    //     .digest("hex");
-    // } else {
-    //   expectedMac = crypto.createHash("sha256")
-    //     .update(components)
-    //     .digest("hex");
-    // }
 
-    // console.log("📦 Expect:", expectedMac);
-    // console.log("📦 From Zalo:", rawSignature);
+// //zalo: Tuktuk
+// app.post("/webhook-anna", async (req, res) => {
+//   try {
+//     const rawBody = req.rawBody;
+//     const timestamp = req.headers["x-zalopayload-timestamp"];
+//     const signature = req.headers["x-zevent-signature"];
+
+//      // 👉 Log headers để kiểm tra khi Zalo gửi test
+//      console.log("---- Nhận request từ Zalo ----");
+//      console.log("Headers:", req.headers);
+//      console.log("Raw Body:", rawBody);
+//      console.log("Parsed Body:", req.body);
+
+//     // if (!signature || !rawBody) {
+//     //   // console.error("❌ Thiếu header hoặc raw body");
+//     //   console.warn("❌ Thiếu thông tin xác thực, trả về 200 để test webhook Zalo");
+//     //   return res.status(200).send("Zalo webhook test accepted");
+//     // }
+
+//     // // ✅ Nếu có chữ ký nhưng KHÔNG có timestamp → bỏ timestamp khỏi xác thực
+//     // const rawSignature = signature.replace("mac=", "").trim();
+//     // const components = APP_ID + rawBody + (timestamp || "") + APP_SECRET;
+
+//     // let expectedMac = "";
+//     // if (timestamp) {
+//     //   expectedMac = crypto.createHash("sha256")
+//     //     .update(APP_ID + rawBody + timestamp + APP_SECRET)
+//     //     .digest("hex");
+//     // } else {
+//     //   expectedMac = crypto.createHash("sha256")
+//     //     .update(components)
+//     //     .digest("hex");
+//     // }
+
+//     // console.log("📦 Expect:", expectedMac);
+//     // console.log("📦 From Zalo:", rawSignature);
     
-    // if (rawSignature !== expectedMac) {
-    //   console.warn("❌ Sai chữ ký!");
-    //   return res.status(401).send("Invalid signature");
-    // }
+//     // if (rawSignature !== expectedMac) {
+//     //   console.warn("❌ Sai chữ ký!");
+//     //   return res.status(401).send("Invalid signature");
+//     // }
 
-    // if (signature !== expectedMac) {
-    //   // console.error("❌ Sai chữ ký!");
-    //   console.warn("❌ Chữ ký sai – từ chối request");
-    //   return res.status(401).send("Invalid signature");
-    // }
+//     // if (signature !== expectedMac) {
+//     //   // console.error("❌ Sai chữ ký!");
+//     //   console.warn("❌ Chữ ký sai – từ chối request");
+//     //   return res.status(401).send("Invalid signature");
+//     // }
 
 
-    const { event_name, sender, message } = req.body;
+//     const { event_name, sender, message } = req.body;
 
-    if (event_name === "user_send_text") {
-      const userId = sender.id;
-      const userMessage = message.text;
+//     if (event_name === "user_send_text") {
+//       const userId = sender.id;
+//       const userMessage = message.text;
 
-      const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
-      // Gọi hàm async để xử lý AI
-      await handleAIReply(userId, userMessage, "Bạn là trợ lý OA.", token_anna);
-    }
+//       const reply = `Bạn vừa gửi: "${userMessage}"`; // test cứng
+//       // Gọi hàm async để xử lý AI
+//       await handleAIReply(userId, userMessage, "Bạn là trợ lý OA.", token_anna);
+//     }
 
-    // ✅ Thành công
-    console.log("✅ Webhook nhận được:", req.body);
-    res.sendStatus(200);
-  } catch (err) {
-    console.error("🔥 Lỗi webhook:", err);
-    res.sendStatus(500);
-  }
-});
+//     // ✅ Thành công
+//     console.log("✅ Webhook nhận được:", req.body);
+//     res.sendStatus(200);
+//   } catch (err) {
+//     console.error("🔥 Lỗi webhook:", err);
+//     res.sendStatus(500);
+//   }
+// });
 
 //test get
 app.get("/webhook", (req, res) => {
