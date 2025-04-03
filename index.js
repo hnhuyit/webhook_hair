@@ -1,9 +1,19 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const crypto = require("crypto");
-const axios = require('axios');
-const Airtable = require("airtable");
-require('dotenv').config();
+// const express = require("express");
+// const bodyParser = require("body-parser");
+// const crypto = require("crypto");
+// const axios = require('axios');
+// const Airtable = require("airtable");
+// require('dotenv').config();
+
+import express from "express";
+import bodyParser from "body-parser";
+import crypto from "crypto";
+import axios from "axios";
+import Airtable from "airtable";
+import dotenv from "dotenv";
+
+// Load biến môi trường
+dotenv.config();
 
 const { handleAIReply, handleAssistantReply } = require("./handlers/aiResponder");
 const { replyZalo } = require("./zalo");

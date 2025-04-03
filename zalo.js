@@ -1,5 +1,6 @@
 // zalo.js
-const axios = require("axios");
+// const axios = require("axios");
+import axios from "axios";
 // require("dotenv").config(); // nếu chưa gọi trong index.js
 // const token = process.env.OA_ACCESS_TOKEN;
 
