@@ -3,7 +3,7 @@ dotenv.config();
 // const OpenAI = require("openai");
 import OpenAI from "openai";
 import Airtable from "airtable";
-const Airtable = require("airtable");
+// const Airtable = require("airtable");
 // const prompt = require("./config/gptService");
 
 // const prompt = fs.readFileSync("./config/systemPrompt.txt", "utf8"); //process.env.SYSTEM_PROMPT || "Bạn là trợ lý OA.";
@@ -14,34 +14,34 @@ const openai = new OpenAI({
 });
 
 // Config Airtable
-const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base("apptmh0D4kfxxCTn1");
-const TABLE_NAME = "Customers";
+// const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base("apptmh0D4kfxxCTn1");
+// const TABLE_NAME = "Customers";
 
 // lỗi server không phải ở VN
-async function getZaloUserProfile(uid, accessToken) {
-  try {
-    const url = `https://openapi.zalo.me/v2.0/oa/getprofile?user_id=${uid}`;
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        "access_token": accessToken,
-      },
-    });
+// async function getZaloUserProfile(uid, accessToken) {
+//   try {
+//     const url = `https://openapi.zalo.me/v2.0/oa/getprofile?user_id=${uid}`;
+//     const res = await fetch(url, {
+//       method: "GET",
+//       headers: {
+//         "access_token": accessToken,
+//       },
+//     });
 
-    const data = await res.json();
+//     const data = await res.json();
 
-    if (data.error === 0) {
-      console.log("✅ Thông tin người dùng Zalo:", data.data);
-      return data.data; // { display_name, avatar, gender, ... }
-    } else {
-      console.warn("⚠️ Không lấy được profile Zalo:", data.message);
-      return null;
-    }
-  } catch (error) {
-    console.error("❌ Lỗi khi gọi Zalo getprofile:", error);
-    return null;
-  }
-}
+//     if (data.error === 0) {
+//       console.log("✅ Thông tin người dùng Zalo:", data.data);
+//       return data.data; // { display_name, avatar, gender, ... }
+//     } else {
+//       console.warn("⚠️ Không lấy được profile Zalo:", data.message);
+//       return null;
+//     }
+//   } catch (error) {
+//     console.error("❌ Lỗi khi gọi Zalo getprofile:", error);
+//     return null;
+//   }
+// }
 
 // async function updateLastInteraction(userId) {
 //   try {
@@ -146,143 +146,143 @@ async function getRecentThreadHistory(threadId, days = 7) {
   return recentMessages;
 }
 
-async function getOrCreateThread(userId) {
-  try {
-    const records = await base(TABLE_NAME)
-      .select({ filterByFormula: `{ZaloUID} = '${userId}'`, maxRecords: 1 })
-      .firstPage();
+// async function getOrCreateThread(userId) {
+//   try {
+//     const records = await base(TABLE_NAME)
+//       .select({ filterByFormula: `{ZaloUID} = '${userId}'`, maxRecords: 1 })
+//       .firstPage();
 
-    // const profile = await getZaloUserProfile(userId, process.env.OA_ACCESS_TOKEN);
-    // console.log("🔁 profile", profile);
-    // const displayName = profile?.display_name || "Zalo User";
-    // const avatar = profile?.avatar || "";
-    // const gender = profile?.gender || ""; // 1 = nam, 2 = nữ
-    // const location = profile?.shared_info?.location || "";
-    // const birthday = profile?.shared_info?.birthday || "";
+//     // const profile = await getZaloUserProfile(userId, process.env.OA_ACCESS_TOKEN);
+//     // console.log("🔁 profile", profile);
+//     // const displayName = profile?.display_name || "Zalo User";
+//     // const avatar = profile?.avatar || "";
+//     // const gender = profile?.gender || ""; // 1 = nam, 2 = nữ
+//     // const location = profile?.shared_info?.location || "";
+//     // const birthday = profile?.shared_info?.birthday || "";
 
-    if (records.length > 0) {
-      const threadId = records[0].fields.ThreadID;
+//     if (records.length > 0) {
+//       const threadId = records[0].fields.ThreadID;
 
-      // // ✅ Nếu đã có thì cập nhật lại LastInteraction
-      // await base(TABLE_NAME).update([
-      //   {
-      //     id: records[0].id,
-      //     fields: {
-      //       LastInteraction: new Date().toISOString(), // chuẩn ISO, Airtable hiểu
-      //       // Name: displayName,
-      //       // Avatar: avatar,
-      //       // Gender: gender,
-      //       // Location: location,
-      //       // Birthday: birthday,
-      //     },
-      //   },
-      // ]);
+//       // // ✅ Nếu đã có thì cập nhật lại LastInteraction
+//       // await base(TABLE_NAME).update([
+//       //   {
+//       //     id: records[0].id,
+//       //     fields: {
+//       //       LastInteraction: new Date().toISOString(), // chuẩn ISO, Airtable hiểu
+//       //       // Name: displayName,
+//       //       // Avatar: avatar,
+//       //       // Gender: gender,
+//       //       // Location: location,
+//       //       // Birthday: birthday,
+//       //     },
+//       //   },
+//       // ]);
 
-      console.log("🔁 Đã tìm thấy thread:", threadId);
-      return threadId;
-    }
-    const thread = await openai.beta.threads.create();
+//       console.log("🔁 Đã tìm thấy thread:", threadId);
+//       return threadId;
+//     }
+//     const thread = await openai.beta.threads.create();
 
-    // 3. Lưu vào Airtable
-    await base(TABLE_NAME).create([
-      {
-        fields: {
-          ZaloUID: userId,
-          ThreadID: thread.id,
-          LastInteraction: new Date().toISOString(),
-          // Name: displayName,
-          // Avatar: avatar,
-          // Gender: gender,
-          // Location: location,
-          // Birthday: birthday,
-        },
-      },
-    ]);
+//     // 3. Lưu vào Airtable
+//     await base(TABLE_NAME).create([
+//       {
+//         fields: {
+//           ZaloUID: userId,
+//           ThreadID: thread.id,
+//           LastInteraction: new Date().toISOString(),
+//           // Name: displayName,
+//           // Avatar: avatar,
+//           // Gender: gender,
+//           // Location: location,
+//           // Birthday: birthday,
+//         },
+//       },
+//     ]);
 
-    console.log("✅ Tạo thread mới & lưu vào Airtable:", thread.id);
-    return thread.id;
-  } catch (err) {
-    console.error("🔥 Lỗi getOrCreateThread:", err);
-    throw err;
-  }
-}
+//     console.log("✅ Tạo thread mới & lưu vào Airtable:", thread.id);
+//     return thread.id;
+//   } catch (err) {
+//     console.error("🔥 Lỗi getOrCreateThread:", err);
+//     throw err;
+//   }
+// }
 
 //with Assistant :askAssistantWithRecentContext
-async function askAssistant(message, userId) {
-  const threadId = await getOrCreateThread(userId); // bạn tự mapping user ↔ thread
-  // Gửi message người dùng vào thread
-  await openai.beta.threads.messages.create(threadId, {
-    role: "user",
-    content: message,
-  });
+// async function askAssistant(message, userId) {
+//   const threadId = await getOrCreateThread(userId); // bạn tự mapping user ↔ thread
+//   // Gửi message người dùng vào thread
+//   await openai.beta.threads.messages.create(threadId, {
+//     role: "user",
+//     content: message,
+//   });
 
-  // Gọi Assistant (dùng assistant_id bạn tạo sẵn)
-  const run = await openai.beta.threads.runs.create(threadId, {
-    assistant_id: process.env.ASSISTANT_ID,
-    memory: [], // Loại bỏ bộ nhớ dài hạn
-  });
+//   // Gọi Assistant (dùng assistant_id bạn tạo sẵn)
+//   const run = await openai.beta.threads.runs.create(threadId, {
+//     assistant_id: process.env.ASSISTANT_ID,
+//     memory: [], // Loại bỏ bộ nhớ dài hạn
+//   });
 
-  // Polling để đợi Assistant trả lời
-  let status = "queued";
-  while (status !== "completed") {
-    const result = await openai.beta.threads.runs.retrieve(threadId, run.id);
-    status = result.status;
-    if (status === "failed") throw new Error("Assistant failed");
+//   // Polling để đợi Assistant trả lời
+//   let status = "queued";
+//   while (status !== "completed") {
+//     const result = await openai.beta.threads.runs.retrieve(threadId, run.id);
+//     status = result.status;
+//     if (status === "failed") throw new Error("Assistant failed");
 
-    if (status === "requires_action") {
-      console.warn("⚠️ Assistant yêu cầu gọi function – chưa xử lý logic đó.");
-      break;
-    }
+//     if (status === "requires_action") {
+//       console.warn("⚠️ Assistant yêu cầu gọi function – chưa xử lý logic đó.");
+//       break;
+//     }
 
-    await new Promise((r) => setTimeout(r, 1000));
-  }
+//     await new Promise((r) => setTimeout(r, 1000));
+//   }
 
-  // Lấy message cuối từ assistant
-  const messages = await openai.beta.threads.messages.list(threadId);
-  const latest = messages.data
-    .filter((m) => m.run_id === run.id && m.role === "assistant")
-    .sort((a, b) => b.created_at - a.created_at)[0];
+//   // Lấy message cuối từ assistant
+//   const messages = await openai.beta.threads.messages.list(threadId);
+//   const latest = messages.data
+//     .filter((m) => m.run_id === run.id && m.role === "assistant")
+//     .sort((a, b) => b.created_at - a.created_at)[0];
 
-  return latest?.content?.[0]?.text?.value?.trim() || "[Không có phản hồi]";
-}
+//   return latest?.content?.[0]?.text?.value?.trim() || "[Không có phản hồi]";
+// }
 
 //with Assistant
-async function askAssistantdraft(message, userId) {
-  // Lấy hoặc tạo thread cho user
-  const threadId = await getOrCreateThread(userId);
+// async function askAssistantdraft(message, userId) {
+//   // Lấy hoặc tạo thread cho user
+//   const threadId = await getOrCreateThread(userId);
 
-  // Thêm message của user vào thread
-  await openai.beta.threads.messages.create(threadId, {
-    role: "user",
-    content: message
-  });
+//   // Thêm message của user vào thread
+//   await openai.beta.threads.messages.create(threadId, {
+//     role: "user",
+//     content: message
+//   });
 
-  // Chạy assistant trên thread
-  const run = await openai.beta.threads.runs.create(threadId, {
-    assistant_id: process.env.ASSISTANT_ID 
-  });
+//   // Chạy assistant trên thread
+//   const run = await openai.beta.threads.runs.create(threadId, {
+//     assistant_id: process.env.ASSISTANT_ID 
+//   });
 
-  // Chờ assistant xử lý xong
-  let status = "queued";
-  while (status !== "completed") {
-    const runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
-    status = runStatus.status;
-    if (status === "failed") throw new Error("Assistant failed");
-    await new Promise((res) => setTimeout(res, 5000));
-  }
+//   // Chờ assistant xử lý xong
+//   let status = "queued";
+//   while (status !== "completed") {
+//     const runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
+//     status = runStatus.status;
+//     if (status === "failed") throw new Error("Assistant failed");
+//     await new Promise((res) => setTimeout(res, 5000));
+//   }
 
-  // Lấy trả lời cuối cùng
-  const messages = await openai.beta.threads.messages.list(threadId);
+//   // Lấy trả lời cuối cùng
+//   const messages = await openai.beta.threads.messages.list(threadId);
   
-  // Chỉ lấy message mới nhất từ Assistant
-  const latest = messages.data
-  .filter((msg) => msg.role === "assistant")
-  .sort((a, b) => b.created_at - a.created_at)[0];
+//   // Chỉ lấy message mới nhất từ Assistant
+//   const latest = messages.data
+//   .filter((msg) => msg.role === "assistant")
+//   .sort((a, b) => b.created_at - a.created_at)[0];
 
-  const reply = latest?.content?.[0]?.text?.value;
+//   const reply = latest?.content?.[0]?.text?.value;
 
-  return reply.trim();
-}
+//   return reply.trim();
+// }
 
 const tools = [{
   "type": "function",
