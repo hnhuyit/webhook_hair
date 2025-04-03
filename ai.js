@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 // const OpenAI = require("openai");
 import OpenAI from "openai";
-import Airtable from "airtable";
+// import Airtable from "airtable";
 // const Airtable = require("airtable");
 // const prompt = require("./config/gptService");
 
