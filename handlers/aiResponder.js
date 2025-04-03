@@ -3,7 +3,7 @@
 // const { replyZalo } = require("../zalo");
 
 // aiResponder.js
-import { askAI, askAssistant } from "../ai.js";
+import { askAI } from "../ai.js";
 import { replyZalo } from "../zalo.js";
 
 async function handleAIReply(userId, userMessage, prompt, history, token) {
@@ -38,37 +38,37 @@ async function handleAIReply(userId, userMessage, prompt, history, token) {
   }
 }
 
-async function handleAssistantReply(userId, userMessage, token) {
-  try {
-    const assistantReply = await askAssistant(userMessage, userId); // 🤖 Gọi Assistant trả lời
+// async function handleAssistantReply(userId, userMessage, token) {
+//   try {
+//     const assistantReply = await askAssistant(userMessage, userId); // 🤖 Gọi Assistant trả lời
 
-    try {
-      await replyZalo(userId, assistantReply, token); // 📩 Gửi phản hồi cho người dùng
-      console.log("✅ Assistant phản hồi:", assistantReply);
-    } catch (sendErr) {
-      console.error("❌ Lỗi khi gửi phản hồi cho user:", sendErr.message);
-    }
+//     try {
+//       await replyZalo(userId, assistantReply, token); // 📩 Gửi phản hồi cho người dùng
+//       console.log("✅ Assistant phản hồi:", assistantReply);
+//     } catch (sendErr) {
+//       console.error("❌ Lỗi khi gửi phản hồi cho user:", sendErr.message);
+//     }
 
-  } catch (err) {
-    console.error("❌ Lỗi khi Assistant xử lý:", err.message);
+//   } catch (err) {
+//     console.error("❌ Lỗi khi Assistant xử lý:", err.message);
 
-    const fallbackMsg = err.message.includes("429") || err.message.includes("quota")
-      ? "⚠️ Hiện tại hệ thống AI đang quá tải. Nhân viên thật sẽ hỗ trợ bạn ngay sau ít phút."
-      : "⚠️ Xin lỗi, hiện tại hệ thống đang gặp lỗi. Vui lòng thử lại sau.";
+//     const fallbackMsg = err.message.includes("429") || err.message.includes("quota")
+//       ? "⚠️ Hiện tại hệ thống AI đang quá tải. Nhân viên thật sẽ hỗ trợ bạn ngay sau ít phút."
+//       : "⚠️ Xin lỗi, hiện tại hệ thống đang gặp lỗi. Vui lòng thử lại sau.";
 
-    try {
-      await replyZalo(userId, fallbackMsg, token); // 📩 Gửi fallback cho user
-    } catch (fallbackErr) {
-      console.error("❌ Lỗi khi gửi fallback cho user:", fallbackErr.message);
-    }
+//     try {
+//       await replyZalo(userId, fallbackMsg, token); // 📩 Gửi fallback cho user
+//     } catch (fallbackErr) {
+//       console.error("❌ Lỗi khi gửi fallback cho user:", fallbackErr.message);
+//     }
 
-    try {
-      await replyZalo("9187775818961242155", `⚠️ AI lỗi với user ${userId}: ${userMessage}`, token); // 📩 Báo cho admin
-    } catch (adminErr) {
-      console.error("❌ Lỗi khi gửi cảnh báo cho admin:", adminErr.message);
-    }
-  }
-}
+//     try {
+//       await replyZalo("9187775818961242155", `⚠️ AI lỗi với user ${userId}: ${userMessage}`, token); // 📩 Báo cho admin
+//     } catch (adminErr) {
+//       console.error("❌ Lỗi khi gửi cảnh báo cho admin:", adminErr.message);
+//     }
+//   }
+// }
 
 // module.exports = { handleAIReply, handleAssistantReply };
-export { handleAIReply, handleAssistantReply };
+export { handleAIReply };
