@@ -18,7 +18,7 @@ dotenv.config();
 // const { handleAIReply, handleAssistantReply } = require("./handlers/aiResponder");
 // const { replyZalo } = require("./zalo");
 
-import { handleAIReply, handleAssistantReply } from "./handlers/aiResponder.js";
+import { handleAIReply } from "./handlers/aiResponder.js";
 import { replyZalo } from "./zalo.js"; // hoặc "./zalo.js" nếu file đó là file riêng
 
 
