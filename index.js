@@ -61,8 +61,11 @@ async function fetchConfigFromAirtable() {
 
   const config = {};
   for (const record of records) {
-    config[record.fields.Key] = record.fields.Value;
-  }
+    const name = record.fields.name;
+    const value = record.fields.key;
+    if (name && typeof value !== "undefined") {
+      config[name] = value;
+    }  }
 
   return config;
 }
