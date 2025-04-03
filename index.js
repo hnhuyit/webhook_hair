@@ -12,9 +12,10 @@ const app = express();
 app.use(express.static("public"));
 
 // Config Airtable
-const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base("apptmh0D4kfxxCTn1");
 const TABLE_NAME = "Customers";
 const ChatHistory = "ChatHistory";
+const BASE_ID = "apptmh0D4kfxxCTn1";
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(BASE_ID);
 
 // Middleware để lấy raw body
 app.use(bodyParser.json({
@@ -23,20 +24,22 @@ app.use(bodyParser.json({
   }
 }));
 
-const APP_ID = process.env.APP_ID;
-const APP_SECRET = process.env.APP_SECRET;
-const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "1234567890";
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "";
-const PAGE_ID = process.env.PAGE_ID || "543096242213723";
-// const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT || "";
+// => Dùng để xác thực webhook
+// const APP_ID = process.env.APP_ID;
+// const APP_SECRET = process.env.APP_SECRET;
+// const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "1234567890";
+// const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "";
+// const PAGE_ID = process.env.PAGE_ID || "543096242213723";
 
-const SYSTEM_PROMPT = require("./config/gptService");
+
+// const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT || "";
+// const SYSTEM_PROMPT = require("./config/gptService");
 // const prompt_tuktuk = require("./config/gptServiceTuktuk");
 // const prompt_anna = require("./config/gptServiceAnna");
 
-const token = process.env.OA_ACCESS_TOKEN;
-const token_tuktuk = process.env.OA_TUKTUK;
-const token_anna = process.env.OA_ANNA;
+// const token = process.env.OA_ACCESS_TOKEN;
+// const token_tuktuk = process.env.OA_TUKTUK;
+// const token_anna = process.env.OA_ANNA;
 
 const unsupportedTypes = [
   "user_send_image",
@@ -47,6 +50,48 @@ const unsupportedTypes = [
   "user_send_location",
   "user_send_business_card"
 ];
+
+let cachedConfig = null;
+let lastFetched = 0;
+const TTL = 15 * 60 * 1000; // 15 phút
+
+async function fetchConfigFromAirtable() {
+  const tableName = 'Meta';
+  const records = await base(tableName).select().all();
+
+  const config = {};
+  for (const record of records) {
+    config[record.fields.Key] = record.fields.Value;
+  }
+
+  return config;
+}
+
+async function getConfig() {
+  const now = Date.now();
+
+  if (!cachedConfig || now - lastFetched > TTL) {
+    const newConfig = await fetchConfigFromAirtable();
+
+    const oldConfigString = JSON.stringify(cachedConfig || {});
+    const newConfigString = JSON.stringify(newConfig);
+
+    if (oldConfigString !== newConfigString) {
+      cachedConfig = newConfig;
+      lastFetched = now;
+      console.log(`[CONFIG] Config updated at ${new Date().toISOString()}`);
+    } else {
+      console.log(`[CONFIG] No change detected, reusing cached config.`);
+    }
+  }
+
+  return cachedConfig;
+}
+
+const config = await getConfig();
+console.log("config", config)
+const SYSTEM_PROMPT = config.SYSTEM_PROMPT;
+const token = config.OA_ACCESS_TOKEN;
 
 //Ghi nhận lead từ conversation kèm info để update Customer
 
@@ -247,7 +292,7 @@ app.post("/webhook", async (req, res) => {
     await saveMessage({ userId, role: "user", message: userMessage });
     
     const history = await getRecentMessages(userId);
-    console.log("history", history)
+    // console.log("history", history)
     
     await updateLastInteractionOnlyIfNewDay(userId, event_name);
     if (event_name === "user_send_text") {

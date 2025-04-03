@@ -281,6 +281,28 @@ async function askAssistantdraft(message, userId) {
   return reply.trim();
 }
 
+const tools = [{
+  "type": "function",
+  "function": {
+      "name": "get_weather",
+      "description": "Get current temperature for a given location.",
+      "parameters": {
+          "type": "object",
+          "properties": {
+              "location": {
+                  "type": "string",
+                  "description": "City and country e.g. Bogotá, Colombia"
+              }
+          },
+          "required": [
+              "location"
+          ],
+          "additionalProperties": false
+      },
+      "strict": true
+  }
+}];
+
 //with AI
 async function askAI(message, prompt, history) {
 
@@ -290,13 +312,14 @@ async function askAI(message, prompt, history) {
 
   const res = await openai.chat.completions.create({
     model: "gpt-4o-mini", // hoặc gpt-4 nếu bạn dùng
+    // web_search_options: {}, Built-in tools: Use built-in tools like web search and file search to extend the model's capabilities.
     messages: [
       { role: "system", content: prompt },
       ...cleanHistory,
       { role: "user", content: 
           [
             // {
-            //     type: "file",
+            //     type: "file", // File inputs: Learn how to use PDF files as inputs to the OpenAI API.
             //     file: {
             //         file_id: "file-6CXFs4ZD9tjfduS5xNzdTV",
             //     }
@@ -308,7 +331,10 @@ async function askAI(message, prompt, history) {
         ],
 
       }
-    ]
+    ],
+    //stream: true, //Streaming API responses : Learn how to stream model responses from the OpenAI API using server-sent events.
+    // tools,         Function Calling: Enable models to fetch data and take actions.
+    // store: true,   
   });
   return res.choices[0].message.content.trim();
 }
