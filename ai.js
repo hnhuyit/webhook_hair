@@ -207,8 +207,8 @@ async function getRecentThreadHistory(threadId, days = 7) {
 //   }
 // }
 
-//with Assistant :askAssistantWithRecentContext
-// async function askAssistant(message, userId) {
+//with AssistantWithRecentContext
+// async functio(message, userId) {
 //   const threadId = await getOrCreateThread(userId); // bạn tự mapping user ↔ thread
 //   // Gửi message người dùng vào thread
 //   await openai.beta.threads.messages.create(threadId, {
@@ -247,7 +247,7 @@ async function getRecentThreadHistory(threadId, days = 7) {
 // }
 
 //with Assistant
-// async function askAssistantdraft(message, userId) {
+// async functiodraft(message, userId) {
 //   // Lấy hoặc tạo thread cho user
 //   const threadId = await getOrCreateThread(userId);
 
@@ -342,5 +342,5 @@ async function askAI(message, prompt, history) {
   return res.choices[0].message.content.trim();
 }
 
-// module.exports = { askAI, askAssistant };
-export { askAI, askAssistant };
+// module.exports = { askAI };
+export { askAI };
