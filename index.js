@@ -11,6 +11,7 @@ import crypto from "crypto";
 import axios from "axios";
 import Airtable from "airtable";
 import dotenv from "dotenv";
+import cron from "node-cron";
 
 // Load biến môi trường
 dotenv.config();
