@@ -65,10 +65,6 @@ const unsupportedTypes = [
   "user_send_business_card"
 ];
 
-let cachedConfig = null;
-let lastFetched = 0;
-const TTL = 15 * 60 * 1000; // 15 phút
-
 async function fetchConfigFromAirtable() {
   const tableName = 'Meta';
   const records = await base(tableName).select().all();
@@ -84,31 +80,30 @@ async function fetchConfigFromAirtable() {
   return config;
 }
 
-async function getConfig() {
-  const now = Date.now();
+let cachedToken = null;
 
-  if (!cachedConfig || now - lastFetched > TTL) {
-    const newConfig = await fetchConfigFromAirtable();
+export async function refreshOAToken() {
+  const config = await fetchConfigFromAirtable();
+  const newToken = config.OA_ACCESS_TOKEN;
 
-    const oldConfigString = JSON.stringify(cachedConfig || {});
-    const newConfigString = JSON.stringify(newConfig);
-
-    if (oldConfigString !== newConfigString) {
-      cachedConfig = newConfig;
-      lastFetched = now;
-      console.log(`[CONFIG] Config updated at ${new Date().toISOString()}`);
-    } else {
-      console.log(`[CONFIG] No change detected, reusing cached config.`);
-    }
+  if (newToken && newToken !== cachedToken) {
+    cachedToken = newToken;
+    console.log(`[TOKEN] OA Token refreshed at ${new Date().toISOString()}`);
+  } else {
+    console.log(`[TOKEN] OA Token unchanged`);
   }
 
-  return cachedConfig;
+  return cachedToken;
 }
 
-const config = await getConfig();
-console.log("config", config)
-const SYSTEM_PROMPT = config.SYSTEM_PROMPT;
-const token = config.OA_ACCESS_TOKEN;
+export function getOAToken() {
+  return cachedToken;
+}
+
+cron.schedule("30 1 * * *", async () => {
+  console.log("[CRON] 1:30AM - Refreshing OA token...");
+  await refreshOAToken();
+});
 
 //Ghi nhận lead từ conversation kèm info để update Customer
 
@@ -306,6 +301,10 @@ app.post("/webhook", async (req, res) => {
     const userId = sender.id;
     const userMessage = message.text;
 
+    const config = await fetchConfigFromAirtable();
+    const SYSTEM_PROMPT = config.SYSTEM_PROMPT;
+    const token = getOAToken(); // Dùng token được cache từ 1h30AM
+
     await saveMessage({ userId, role: "user", message: userMessage });
     
     const history = await getRecentMessages(userId);
@@ -315,12 +314,10 @@ app.post("/webhook", async (req, res) => {
     if (event_name === "user_send_text") {
       console.log(`Bạn vừa gửi: "${userMessage}"`);
 
-      // Gọi hàm async để xử lý AI
       const aiReply = await handleAIReply(userId, userMessage, SYSTEM_PROMPT, history, token);
+      // await handleAssistantReply(userId, userMessage, token);
       
       await saveMessage({ userId, role: "assistant", message: aiReply });
-
-      // await handleAssistantReply(userId, userMessage, token);
     } else if (unsupportedTypes.includes(event_name)) {
       await replyZalo(userId, `❗ Trợ lý AI hiện tại **chưa hỗ trợ xử lý loại nội dung này**.\n\n📌 Vui lòng gửi tin nhắn văn bản để được phản hồi chính xác nhé.`, token);
     } else {
