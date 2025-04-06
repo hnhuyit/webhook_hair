@@ -21,7 +21,7 @@ dotenv.config();
 
 import { handleAIReply } from "./handlers/aiResponder.js";
 import { replyZalo } from "./zalo.js"; // hoặc "./zalo.js" nếu file đó là file riêng
-
+import { hashData, normalizePhone} from "./hashUtil.js";
 
 const app = express();
 app.use(express.static("public"));
@@ -65,6 +65,29 @@ const unsupportedTypes = [
   "user_send_location",
   "user_send_business_card"
 ];
+
+
+
+const table = "Raw";
+async function getUnhashedUsers() {
+  const records = [];
+  await base(table).select({
+    filterByFormula: "OR({Hashed} = '', {Hashed} = BLANK())",
+    maxRecords: 100
+  }).eachPage((page, fetchNextPage) => {
+    records.push(...page);
+    fetchNextPage();
+  });
+  return records;
+}
+
+async function updateHashedUser(recordId, hashedPhone) {
+  return base(table).update(recordId, {
+    // "Email_Hashed": hashedEmail,
+    "Phone_Hashed": hashedPhone,
+    "Hashed": true
+  });
+}
 
 async function fetchConfigFromAirtable() {
   const tableName = 'Meta';
@@ -290,6 +313,36 @@ async function getRecentMessages(userId, limit = 100) {
     content: r.get("Message")
   })).reverse(); // Đảo ngược lại thứ tự cho đúng lịch sử
 }
+
+app.get('/hash-users-daily', async (req, res) => {
+  try {
+    const users = await getUnhashedUsers();
+    const result = [];
+
+    for (const record of users) {
+      // const email = record.get('Email');
+      const phone = record.get('Phone');
+
+      if (!phone) continue;
+
+      // const emailHashed = email ? hashData(email) : null;
+      const phoneHashed = phone ? hashData(normalizePhone(phone)) : null;
+
+      await updateHashedUser(record.id, phoneHashed);
+
+      result.push({
+        name: record.get('Name'),
+        // emailHashed,
+        phoneHashed
+      });
+    }
+
+    res.json({ message: 'Hashed and updated successfully', result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong.');
+  }
+});
 
 //zalo: Hoang Hưng Thịnh
 app.post("/webhook", async (req, res) => {
