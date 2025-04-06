@@ -39,6 +39,13 @@ app.use(bodyParser.json({
   }
 }));
 
+app.use((req, res, next) => {
+  if (req.headers["x-api-key"] !== "your-secret-token") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+});
+
 // => Dùng để xác thực webhook
 // const APP_ID = process.env.APP_ID;
 // const APP_SECRET = process.env.APP_SECRET;
