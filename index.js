@@ -314,37 +314,38 @@ async function getRecentMessages(userId, limit = 100) {
   })).reverse(); // Đảo ngược lại thứ tự cho đúng lịch sử
 }
 
-app.get('/hash-users-daily', async (req, res) => {
-  try {
-    const users = await getUnhashedUsers();
-    const result = [];
-    console.log("user", users)
+function normalizeVietnamesePhone(phone) {
+  if (!phone) return "";
 
-    for (const record of users) {
-      // const email = record.get('Email');
-      const phone = record.get('Phone');
+  // Xoá ký tự không phải số
+  let digits = phone.replace(/[^0-9]/g, "").trim();
 
-      if (!phone) continue;
-
-      // const emailHashed = email ? hashData(email) : null;
-      const phoneHashed = phone ? hashData(normalizePhone(phone)) : null;
-
-      await updateHashedUser(record.id, phoneHashed);
-
-      result.push({
-        name: record.get('Name'),
-        // emailHashed,
-        phoneHashed
-      });
-    }
-    
-    console.log("result", result)
-
-    res.json({ message: 'Hashed and updated successfully', result });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Something went wrong.');
+  // Nếu bắt đầu bằng 0 và dài 10 số -> đổi 0 thành +84
+  if (digits.startsWith("0") && digits.length === 10) {
+    return "+84" + digits.slice(1);
   }
+
+  // Nếu đã là số +84 đúng định dạng thì giữ nguyên
+  if (digits.startsWith("84") && digits.length === 11) {
+    return "+84" + digits.slice(2);
+  }
+
+  // Trường hợp số sai định dạng
+  return "";
+}
+
+app.get('/hash-users-daily', async (req, res) => {
+  const { phone } = req.body;
+
+  const formattedPhone = normalizeVietnamesePhone(phone);
+
+  if (!formattedPhone) {
+    return res.status(400).json({ error: "Invalid phone number format" });
+  }
+
+  const hash = crypto.createHash("sha256").update(formattedPhone).digest("hex");
+
+  res.json({ hashed_phone: hash, formatted_phone: formattedPhone });
 });
 
 //zalo: Hoang Hưng Thịnh
