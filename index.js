@@ -318,6 +318,7 @@ app.get('/hash-users-daily', async (req, res) => {
   try {
     const users = await getUnhashedUsers();
     const result = [];
+    console.log("user", users)
 
     for (const record of users) {
       // const email = record.get('Email');
@@ -336,6 +337,8 @@ app.get('/hash-users-daily', async (req, res) => {
         phoneHashed
       });
     }
+    
+    console.log("result", result)
 
     res.json({ message: 'Hashed and updated successfully', result });
   } catch (err) {
