@@ -334,7 +334,7 @@ function normalizeVietnamesePhone(phone) {
   return "";
 }
 
-app.get('/hash-users-daily', async (req, res) => {
+app.post('/hash-users-daily', async (req, res) => {
   const { phone } = req.body;
 
   const formattedPhone = normalizeVietnamesePhone(phone);
