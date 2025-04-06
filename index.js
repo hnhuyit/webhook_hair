@@ -322,24 +322,49 @@ async function getRecentMessages(userId, limit = 100) {
 }
 
 function normalizeVietnamesePhone(phone) {
-  if (!phone) return "";
+  if (!phone || typeof phone !== "string") return "";
 
-  // Xoá ký tự không phải số
-  let digits = phone.replace(/[^0-9]/g, "").trim();
+  // Loại bỏ mọi ký tự không phải số
+  let digits = phone.replace(/[^\d]/g, "").trim();
 
-  // Nếu bắt đầu bằng 0 và dài 10 số -> đổi 0 thành +84
+  // Map các đầu số cũ sang mới
+  const oldToNewPrefixes = {
+    "0162": "032", "0163": "033", "0164": "034", "0165": "035", "0166": "036",
+    "0167": "037", "0168": "038", "0169": "039",
+    "0120": "070", "0121": "079", "0122": "077", "0123": "083", "0124": "084",
+    "0125": "085", "0126": "076", "0127": "081", "0128": "078",
+    "0186": "056", "0188": "058",
+    "0199": "059"
+  };
+
+  // Nếu bắt đầu bằng 0 và là 11 số → kiểm tra đầu số cũ
+  if (digits.startsWith("0") && digits.length === 11) {
+    let prefix = digits.substring(0, 4);
+    let newPrefix = oldToNewPrefixes[prefix];
+    if (newPrefix) {
+      return "+84" + newPrefix + digits.slice(4); // bỏ prefix cũ, thay bằng mới
+    }
+  }
+
+  // Nếu bắt đầu bằng 0 và đủ 10 số → chuyển thành +84
   if (digits.startsWith("0") && digits.length === 10) {
     return "+84" + digits.slice(1);
   }
 
-  // Nếu đã là số +84 đúng định dạng thì giữ nguyên
+  // Nếu bắt đầu bằng 84 → chuyển thành +84
   if (digits.startsWith("84") && digits.length === 11) {
     return "+84" + digits.slice(2);
   }
 
-  // Trường hợp số sai định dạng
+  // Nếu bắt đầu bằng +84 và đúng định dạng → giữ nguyên
+  if (phone.startsWith("+84") && digits.length === 11) {
+    return "+84" + digits.slice(2);
+  }
+
+  // Không hợp lệ
   return "";
 }
+
 
 app.post('/hash-users-daily', async (req, res) => {
   const { phone } = req.body;
