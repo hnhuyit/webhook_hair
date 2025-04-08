@@ -574,6 +574,13 @@ app.get("/", (req, res) => {
   res.send("This is homepage.");
 });
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
+// app.listen(3000, () => {
+//   console.log("Server is running on port 3000");
+// });
+
+(async () => {
+  await refreshOAToken(); // ⬅️ Thêm dòng này
+  app.listen(3000, () => {
+    console.log("Server is running on port 3000");
+  });
+})();
